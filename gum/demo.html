@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<!--
+	TXT by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>GUM - The Georgetown University Multilayer Corpus</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/custom.css" />
+	</head>
+	<body class="is-preload">
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+					<div class="logo container">
+						<div>
+							<h1><a href="index.html" id="logo">GUM</a>:</h1>
+							<p> The <b>G</b>eorgetown <b>U</b>niversity <b>M</b>ultilayer Corpus</p>
+						</div>
+					</div>
+				</header>
+
+			<!-- Nav -->
+
+			<!--#include file="nav.html"-->
+
+			<!-- Main -->
+				<section id="main">
+					<div class="container">
+						<div class="row">
+							
+							<!--#include file="sidebar.html"-->
+							
+							<div class="col-9 col-12-medium imp-medium">
+								<div class="content">
+
+									<!-- Content -->
+
+										<article class="box page-content">
+
+											<header>
+												<h2>Demo</h2>
+												<p>Search and visualize annotation graphs in GUM</p>
+											</header>
+
+											<section>
+												<a href="https://corpling.uis.georgetown.edu/annis/#_q=c190eXBlIF9pXyBpZGVudGl0eT0iVW5pdGVkX05hdGlvbnMiIF4qIGVudGl0eT0icGxhY2UiIF89XyBpZGVudGl0eSE9IlVuaXRlZF9OYXRpb25zIiAmICMxIF9pXyAjNA&_c=R1VN&cl=5&cr=5&s=0&l=10"><span class="image featured"><img src="img/GUM_annis.png" alt="GUM in ANNIS" title="GUM in ANNIS" /></span></a>
+        <p>
+            You can play around with the GUM corpus online using the <a href="https://corpus-tools.org/annis">ANNIS</a> search and visualization platform. ANNIS is an open-source database and front-end query system built to handle multilayer corpora, allowing users to search for sequences of words, part of speech annotations, syntactic categories and relations, entity types, discourse graphs, and much more. It allows users to form complex queries combining information from all annotation layers in the corpus.</p>
+
+			<p>To access GUM in ANNIS we use the <a href="http://korpling.github.io/ANNIS/4.3/user-guide/aql/">ANNIS query language (AQL)</a>, a graph-based formalism which expresses relations between search nodes, such as words, parts of speech or entities, and their annotations.
+        </p>
+		<h3>Example queries</h3>
+	    <ul>
+		<li>Find adverbs in the Penn tagset that are ordinals in the CLAWS5 tagset:<br/><a class="demo_query" href="https://corpling.uis.georgetown.edu/annis/#_q=cG9zPSJSQiIgXz1fIGNsYXdzNT0iT1JEIg&_c=R1VN&cl=5&cr=5&s=0&l=10"> <i class="fa fa-search">&nbsp;</i>pos="RB" _=_ claws5="ORD"</a></li>
+		<li>Search for "one" anaphora (e.g. <i>"this... the other one"</i>):<br/><a class="demo_query" href="https://corpling.uis.georgetown.edu/annis/#_q=ZW50aXR5IC0-YnJpZGdlIGVudGl0eSAmICMxIC0-aGVhZCBsZW1tYT0ib25lIg&_c=R1VN&cl=5&cr=5&s=0&l=10"> <i class="fa fa-search">&nbsp;</i>entity -&gt;bridge entity &amp; #1 -&gt;head lemma="one"</a></li>
+		<li>Find an ADJP modified adverbially by an NP:<br/><a class="demo_query" href="https://corpling.uis.georgetown.edu/annis/#_q=Y2F0PSJBREpQIiA-W2Z1bmM9IkFEViJdIGNhdD0iTlAi&_c=R1VN&cl=5&cr=5&s=0&l=10"> <i class="fa fa-search">&nbsp;</i>cat="ADJP" &gt;[func="ADV"] cat="NP"</a></li>
+		<li>Find places mentioned in the same sentence as the United Nations:<br/><a class="demo_query" href="https://corpling.uis.georgetown.edu/annis/#_q=c190eXBlIF9pXyBpZGVudGl0eT0iVW5pdGVkX05hdGlvbnMiIF4qIGVudGl0eT0icGxhY2UiIF89XyBpZGVudGl0eSE9IlVuaXRlZF9OYXRpb25zIiAmICMxIF9pXyAjNA&_c=R1VN&cl=5&cr=5&s=0&l=10"> <i class="fa fa-search">&nbsp;</i>s_type _i_ identity=‎"United_Nations‎" ^* entity=‎"place‎" _=_ identity!=‎"United_Nations‎" & #1 _i_ #4</a></li>
+		<li>Search for clauses supplying <i>evidence</i> relations in interviews:<br/><a class="demo_query" href="https://corpling.uis.georgetown.edu/annis/#_q=cnN0OmtpbmQgPltyZWxuYW1lPSJleHBsYW5hdGlvbi1ldmlkZW5jZSJdIHJzdDpraW5kICYgbWV0YTo6dHlwZT0iaW50ZXJ2aWV3Ig&_c=R1VN&cl=5&cr=5&s=0&l=10"> <i class="fa fa-search">&nbsp;</i>rst:kind >[relname="explanation-evidence"] rst:kind &amp; meta::type="interview"</a></li>
+		<li>Find places referred to as "there" and their antecedents:<br/><a class="demo_query" href="https://corpling.uis.georgetown.edu/annis/#_q=bGVtbWE9InRoZXJlIiBfPV8gZW50aXR5PSJwbGFjZSIgLT5jb3JlZiBlbnRpdHk9InBsYWNlIg&_c=R1VN&cl=5&cr=5&s=0&l=10"> <i class="fa fa-search">&nbsp;</i>lemma="there" _=_ entity="place" -&gt;coref entity="place"</a></li>
+		<li>Search for headings beginning with a transitive verb:<br/><a class="demo_query" href="https://corpling.uis.georgetown.edu/annis/#_q=aGVhZCBfbF8gcG9zPS9WLiovIC0-ZGVwW2Z1bmM9Im9iaiJdIHRvaw&_c=R1VN&cl=5&cr=5&s=0&l=10"> <i class="fa fa-search">&nbsp;</i>head _l_ pos=/V.*/ -&gt;dep[func="obj"] tok</a></li>
+		
+		</ul>
+
+											</section>
+
+
+										</article>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+			<!-- Footer -->
+				
+			<!--#include file="footer.html"-->
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

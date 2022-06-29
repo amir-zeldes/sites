@@ -1,0 +1,293 @@
+<!DOCTYPE HTML>
+<!--
+	TXT by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>GUM - The Georgetown University Multilayer Corpus</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/custom.css" />
+	</head>
+	<body class="is-preload">
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+					<div class="logo container">
+						<div>
+							<h1><a href="index.html" id="logo">GUM</a>:</h1>
+							<p> The <b>G</b>eorgetown <b>U</b>niversity <b>M</b>ultilayer Corpus</p>
+						</div>
+					</div>
+				</header>
+
+			<!-- Nav -->
+
+			<!--#include file="nav.html"-->
+
+			<!-- Main -->
+				<section id="main">
+					<div class="container">
+						<div class="row">
+							
+							<!--#include file="sidebar.html"-->
+							
+							<div class="col-9 col-12-medium imp-medium">
+								<div class="content">
+
+									<!-- Content -->
+
+										<article class="box page-content">
+
+											<header>
+												<h2>Annotations</h2>
+												<p>Individual annotation layer documentation</p>
+											</header>
+
+											<section>
+												<!--<span class="image featured"><img src="img/conllu_example_neg.png" alt="GUM in CoNLLU format" /></span>-->
+        
+		<p style="margin-bottom: 1em;">The GUM corpus contains a large number of concurrent annotations which can be grouped into 'layers'. Each layer is structurally independant of other layers, and often created using different tools and at different times, though the build-bot used to correct the corpus (see <a href="build.html">Corrections</a>) enforces some consistency between layers (for example: constituent syntax and dependency syntax layers use the same sentence boundaries). The following layers are currently included in the corpus:
+		<ul>
+			<li><a href="#tok">tok</a> - multiple parts of speech and lemmatization for each token</li>
+			<li><a href="#tei">tei</a> - document structure, links, ISO date/time, sentence types, errors and more</li>
+			<li><a href="#const">const</a> - Penn Treebank-style trees, including phrase function labels</li>
+			<li><a href="#dep">dep</a> - Universal Dependencies (UD) trees</li>
+			<li><a href="#edep">edep</a> - Enhanced dependency graphs</li>
+			<li><a href="#morph">morph</a> - morphological categories based on the UD inventory</li>
+			<li><a href="#ref">ref</a> - nested, named and non-named entity types, coreference, information status and Wikification</li>
+			<li><a href="#bridge">bridge</a> - bridging anaphora and split antecedent coreference</li>
+			<li><a href="#rst">rst</a> - discourse parses in Rhetorical Structure Theory</li>
+			<li><a href="#rsd">rsd</a> - dependency version of discourse annotations</li>
+			
+		</ul>
+		
+		Guidelines for these annotations generally follow accepted standards, and GUM is part of and conforms to initiatives including <a href="http://universaldependencies.org">Universal Dependencies</a> and <a href="http://universalanaphora.org">Universal Anaphora</a>. Individual guidelines for specific annotations and cases arising from the annotation of GUM genres in particular are documented in <a href="https://corpling.uis.georgetown.edu/wiki/doku.php?id=gum:guidelines">our Wiki</a>.
+		</p>
+		
+        <h3><a name="tok">tok - token annotations</a></h3>
+        <p>
+            Each token in the GUM corpus is manually checked for correct segmentation, manually tagged using the Penn Tagset with TreeTagger extensions (e.g. distinguishing
+            lexical verbs as VV* from auxiliaries VB* and VH*; see <a href="http://www.sketchengine.co.uk/documentation/wiki/tagsets/penn">here</a> for details, and the original PTB tagging guidelines without extended tags here). 
+            The tokens are automatically lemmatized using <a href="https://stanfordnlp.github.io/stanza/">Stanza</a> and manually corrected,
+            and a second automatic part of speech tag using the <a href="http://ucrel.lancs.ac.uk/claws5tags.html">CLAWS5 tag set</a> is added, as well as original Penn Treebank tags. This phase of the annotation is done using the <a href="https://corpling.uis.georgetown.edu/gitdox/">GitDox</a> annotation interface.
+            <table class="stripes">
+                <tr><td class="anno_name">pos</td><td>part of speech tags in the Penn/TreeTagger tag set</td></tr>
+                <tr><td class="anno_name">penn_pos</td><td>part of speech tags in the original Penn Treebank tag set</td></tr>
+                <tr><td class="anno_name">claws5</td><td>alternate part of speech tag using the CLAWS5 tag set</td></tr>
+                <tr><td class="anno_name">lemma</td><td>lemma (dictionary entry) for each token</td></tr>
+                <tr><td class="anno_name">tok_func</td><td>convenience annotation giving the token's dependency function</td></tr>
+            </table>
+			
+			For tokenization and tagging guidelines specific to GUM, see our guidelines on <a href="https://corpling.uis.georgetown.edu/wiki/doku.php?id=gum:tokenization_segmentation">segmentation</a> and <a href="https://corpling.uis.georgetown.edu/wiki/doku.php?id=gum:tagging">tagging &amp; lemmatization</a>.
+                
+	    <img src="img/GUM_tok_anno.png" width="550" border="1" alt="token annotations" style="display: block; margin: 20px 10px 10px 30px; "/>
+        </p>
+		
+        <h3><a name="tei">tei - text encoding initiative</a></h3>
+	    <p>The <tt>tei</tt> layer contains a variety of information relating to document structure and appearance, following the <a href="http://tei-c.org">TEI p5 guidelines</a>. Most annotations
+            relate to formatting, but some relate to contents (e.g. date annotations) and coarse linguistic features (e.g. basic sentence spans, and non-normative/erroneous language 
+            using the &lt;sic&gt; tag). The following list of annotations gives an overview and some notes, and guidelines can be found <a href="https://corpling.uis.georgetown.edu/wiki/doku.php?id=gum:tei_markup_in_gum">here</a>:
+        <table class="stripes">
+            <tr><td class="anno_name">caption</td><td>caption for images in the text</td></tr>
+            <tr><td class="anno_name">cell</td><td>a table cell</td></tr>
+            <tr><td class="anno_name">date</td><td>date expressions</td></tr>
+            <tr><td class="anno_name">date_from</td><td>starting date for a range of dates</td></tr>
+            <tr><td class="anno_name">date_notAfter</td><td>latest possible date for an inexact date</td></tr>
+            <tr><td class="anno_name">date_notBefore</td><td>earliest possible date for an inexact date</td></tr>
+            <tr><td class="anno_name">date_rend</td><td>formatting of a date expression (e.g. italics, color)</td></tr>
+            <tr><td class="anno_name">date_to</td><td>end date for a range of dates</td></tr>
+            <tr><td class="anno_name">date_when</td><td>date in question, normalized to the format yyyy-mm-dd</td></tr>
+            <tr><td class="anno_name">figure</td><td>marks the position of a figure in the text</td></tr>
+            <tr><td class="anno_name">figure_rend</td><td>a description of the appearance of the figure</td></tr>
+            <tr><td class="anno_name">gap</td><td>a gap in the text (e.g. ellipsis marked by an editor)</td></tr>
+            <tr><td class="anno_name">gap_reason</td><td>reason for a gap (e.g. 'omitted')</td></tr>
+            <tr><td class="anno_name">head</td><td>marks a heading</td></tr>
+            <tr><td class="anno_name">head_rend</td><td>a description of the appearance of the heading (e.g. bold)</td></tr>
+            <tr><td class="anno_name">hi_rend</td><td>a highlighted section with a description of its appearance (e.g. color)</td></tr>
+            <tr><td class="anno_name">incident_who</td><td>an extralinguistic incident (e.g. coughing), and the person responsible</td></tr>
+            <tr><td class="anno_name">item</td><td>item or bullet point in a list</td></tr>
+            <tr><td class="anno_name">item_n</td><td>item number</td></tr>
+            <tr><td class="anno_name">l_n</td><td>a line in poetry with its number</td></tr>
+            <tr><td class="anno_name">lg_n</td><td>a line group with the group's number</td></tr>
+            <tr><td class="anno_name">lg_type</td><td>line group type (e.g. stanza)</td></tr>
+            <tr><td class="anno_name">list</td><td>list of bullet points</td></tr>
+            <tr><td class="anno_name">list_type</td><td>a list type (e.g. bulleted, ordered, etc.)</td></tr>
+            <tr><td class="anno_name">note</td><td>a footnote or endnote</td></tr>
+            <tr><td class="anno_name">note_n</td><td>the number of a footnote</td></tr>
+            <tr><td class="anno_name">note_place</td><td>location of the note, e.g. 'foot'</td></tr>
+            <tr><td class="anno_name">p</td><td>a paragraph</td></tr>
+            <tr><td class="anno_name">p_rend</td><td>a description of the appearance of the paragraph</td></tr>
+            <tr><td class="anno_name">quote</td><td>a quotation</td></tr>
+            <tr><td class="anno_name">ref</td><td>an external reference, usually a hyperlink</td></tr>
+            <tr><td class="anno_name">ref_target</td><td>the target of the reference (usually a URL, if not ommitted)</td></tr>
+            <tr><td class="anno_name">row</td><td>a table row</td></tr>
+            <tr><td class="anno_name">s</td><td>a main sentence span</td></tr>
+            <tr><td class="anno_name">s_type</td><td>the sentence mood / rough speech act (declarative, subjunctive, imperative, question..)</td></tr>
+            <tr><td class="anno_name">sic</td><td>a section containing an apparent language error, thus in the original</td></tr>
+            <tr><td class="anno_name">sp_who</td><td>a section uttered by a particular speaker with a reference to the speaker</td></tr>
+            <tr><td class="anno_name">table</td><td>a table containing the text</td></tr>
+            <tr><td class="anno_name">table_cols</td><td>number of columns in a table</td></tr>
+            <tr><td class="anno_name">table_rend</td><td>rendering information for a table, e.g. 'boxed'</td></tr>
+            <tr><td class="anno_name">table_rows</td><td>number of rows in a table</td></tr>
+            <tr><td class="anno_name">w</td><td>a fused word form encompassing more than one token (e.g. can|not)</td></tr>
+            
+        </table>
+		
+	    <img src="img/GUM_tei_anno.png" width="550" border="1" alt="TEI annotations" style="display: block; margin: 20px 10px 10px 30px; "/>
+		</p>
+	    
+		<h3><a name="const">const - constituent trees</a></h3>
+		
+	    <p>
+	        The <tt>const</tt> layer contains constituent syntax trees, with some function labels included on edges between constituents. This layer was produced using the  
+	        <a href="https://github.com/KhalilMrini/LAL-Parser">Neural Adobe-UCSD Parser</a> based on the gold POS tags, and aside from 8 test documents has not been fully corrected yet. Function labels for the constituents, such as "NP-SBJ" have been added automatically using a projection algorithm relying on the gold standard syntactic dependency labels from the <tt>dep</tt> layer.
+	    <table class="stripes">
+	        <tr><td class="anno_name">cat</td><td>syntactic category of the phrase (e.g. cat="NP")</td></tr>
+	        <tr><td class="anno_name">func</td><td>grammatical function with respect to parent (e.g. cat >[func="MNR"] cat for manner adverbial modifier phrases)</td></tr>
+	    </table>
+	    <img src="img/GUM_const_anno.png" width="550" border="1" alt="constituent annotations" style="display: block; margin: 20px 10px 10px 30px; "/>
+	  	    </p>
+  
+	    <h3><a name="dep">dep - dependency trees</a></h3>
+	    <p>
+	        The <tt>dep</tt> layer gives a dependency syntax analysis according to <a href="https://universaldependencies.org/">Universal Dependencies</a>. This layer is initially produced using 
+	        <a href="https://stanfordnlp.github.io/stanza/">Stanza</a> operating on gold tokens and POS tags, and is then manually corrected using
+	        the <a href="http://arborator.ilpga.fr/">Arborator</a> collaborative syntax annotation software. We follow general UD guidelines, and specific instructions for constructions found in our data are
+			documented in <a href="https://corpling.uis.georgetown.edu/wiki/doku.php?id=gum:dependencies">our guidelines</a>.
+	    <table class="stripes">
+	        <tr><td class="anno_name">dep</td><td>a dependency relation between two tokens</td></tr>
+	        <tr><td class="anno_name">func</td><td>the universal dependency function according to the UD guidelines</td></tr>
+	    </table>
+	    <img src="img/GUM_ud_anno.png" width="350" border="1" alt="dependency annotations" style="display: block; margin: 20px 10px 10px 30px; "/>
+	    </p>
+	    
+	    <h3><a name="edep">edep - enhanced dependencies</a></h3>
+	    <p>
+	        The <tt>edep</tt> layer adds an enhanced graph representation with structure sharing, which more closely reflects semantic argument structure (see <a href="https://universaldependencies.org/u/overview/enhanced-syntax.html">the guidelines</a>). This layer is produced semi-automatically by propagating structure sharing across coordination, subject and object control and more, and is then adjusted including the introduction of 'virtual' tokens to cover ellipsis, gapping, right-node-raising and related phenomena. This layer also provides augmented label types including lexical subtypes, such as <tt>obl:on</tt> to indicate an oblique PP modifier headed by 'on', or <tt>conj:or</tt> to indicate a disjunction marked by 'or'.
+	    <table class="stripes">
+	        <tr><td class="anno_name">edep</td><td>an enhanced dependency edge between two tokens (incl. multiple edges per token)</td></tr>
+	        <tr><td class="anno_name">func</td><td>the enhanced dependency function according to the UD guidelines</td></tr>
+	        <tr><td class="anno_name">Ellipsis</td><td>a virtual token node representing an elided token with an argument structure role</td></tr>
+	    </table>
+	    <img src="img/GUM_edep_anno.png" width="350" border="1" alt="enhanced dependencies" style="display: block; margin: 20px 10px 10px 30px; "/>
+	    <img src="img/GUM_ellipsis_anno.png" width="350" border="1" alt="virtual ellipsis token" style="display: block; margin: 20px 10px 10px 30px; "/>
+	    </p>
+		
+		<h3><a name="morph">morph - universal morphological features</a></h3>
+		<p>the <tt>morph</tt> layer represents basic inflectional categories, such as Person, Number, Tense, Mood and more. It is produced using a <a href="https://corpling.uis.georgetown.edu/depedit/">DepEdit</a> script from the gold parses of the data, and follows Universal Dependencies standards.
+	    <table class="stripes">
+	        <tr><td class="anno_name">Abbr</td><td>abbreviation, "Yes"</td></tr>
+	        <tr><td class="anno_name">Definite</td><td>definiteness, e.g. "Def"</td></tr>
+	        <tr><td class="anno_name">Degree</td><td>adjective/adverb degree, e.g. "Sup" for superlative</td></tr>
+	        <tr><td class="anno_name">Gender</td><td>grammatical gender, e.g. "Fem"</td></tr>
+	        <tr><td class="anno_name">Mood</td><td>grammatical mood, e.g. "Ind"</td></tr>
+	        <tr><td class="anno_name">Number</td><td>grammatical number, e.g. "Sing"</td></tr>
+	        <tr><td class="anno_name">NumForm</td><td>orthographic form, e.g. "Roman"</td></tr>
+	        <tr><td class="anno_name">NumType</td><td>type of number, e.g. "Card"</td></tr>
+	        <tr><td class="anno_name">Person</td><td>grammatical person, e.g. "3"</td></tr>
+	        <tr><td class="anno_name">Polarity</td><td>negative polarity, "Neg"</td></tr>
+	        <tr><td class="anno_name">Poss</td><td>possessiveness, "Yes"</td></tr>
+	        <tr><td class="anno_name">PronType</td><td>pronoun type, e.g. "Prs"</td></tr>
+	        <tr><td class="anno_name">Reflex</td><td>reflexivity, "Yes"</td></tr>
+	        <tr><td class="anno_name">Tense</td><td>grammatical tense, e.g. "Past"</td></tr>
+	        <tr><td class="anno_name">VerbForm</td><td>verb form, e.g. "Fin"</td></tr>
+	    </table>
+		<img src="img/GUM_morph_anno.png" width="450" border="1" alt="constituent annotations" style="display: block; margin: 20px 10px 10px 30px; "/>
+		</p>
+		
+        <h3><a name="ref">ref - discourse referents and coreference</a></h3>
+	    <p>
+	        The <tt>ref</tt> layer contains information about discourse referents, including their information structural information status (discourse new, given:active, given:inactive, accessible:inferrable, accessible:commonground, and accessible:aggregate for split antecedents) and the type
+	        of entity they represent (a subset of the OntoNotes scheme including person, object, abstract, and more; see <a href="https://corpling.uis.georgetown.edu/wiki/doku.php?id=gum:entities">guidelines</a>). Named entities, including their pronominal and non-named mentions, are also linked to their Wikipedia identifier provided they have a Wikipedia article. The ref layer also includes typed coreference edges between
+	        mentions of entities (including nested, non-named and pronominal mentions), distinguishing ana[phora], cata[phora], appos[ition] and other types of coref[erence]. All annotations are reviewed manually and corrected in the <a href="https://corpling.uis.georgetown.edu/gitdox/">GitDox</a> interface's Spannotator extension.
+	    <table class="stripes">
+	        <tr><td class="anno_name">entity</td><td>entity type</td></tr>
+	        <tr><td class="anno_name">identity</td><td>Wikification identifier</td></tr>
+	        <tr><td class="anno_name">infstat</td><td>information status (giv[en]-act/inact, acc[essible]:inf/com/aggr, or new)</td></tr>
+	        <tr><td class="anno_name">coref</td><td>a coreference edge (AQL: <tt>entity ->coref entity</tt>)</td></tr>
+	        <tr><td class="anno_name">type</td><td>coreference edge type annotation (ana[phora], cata[phora], appos[ition], disc[ourse], pred[ication], coref[erence])</td></tr>
+	    </table>
+	    <img src="img/GUM_ref_anno.png" width="600" border="1" alt="referent annotations" style="display: block; margin: 20px 10px 10px 30px; "/>
+	    <img src="img/GUM_coref_anno.png" width="600" border="1" alt="coreference annotations" style="display: block; margin: 20px 10px 10px 30px; "/>
+		
+		
+	    </p>
+
+        <h3><a name="bridge">bridge - bridging relations</a></h3>
+	    <p>
+	        The <tt>bridge</tt> layer contains information about discourse referents which are introduced indirectly through a previous mention of a different
+			entity, which would lead one to anticipate the existence of the novel but accessible entity (see <a href="https://corpling.uis.georgetown.edu/wiki/doku.php?id=gum:entities">guidelines</a>). These include aggr[egate] mention (i.e. split antecedent, joining previously
+			separately mentioned entities as 'they'), def[inite] anaphoric bridging (e.g. whole + definite part in "a car ... the wheels", or 'other' types of bridging)
+	    <table class="stripes">
+	        <tr><td class="anno_name">bridge</td><td>a bridging edge (AQL: <tt>entity ->bridge entity</tt>)</td></tr>
+	        <tr><td class="anno_name">type</td><td>bridging edge type annotation (bridge:aggr[egate], bridge:def[inite], bridge:other)</td></tr>
+	    </table>
+	    <img src="img/GUM_bridge_anno.png" width="600" border="1" alt="coreference annotations" style="display: block; margin: 20px 10px 10px 30px; "/>
+	    </p>
+
+	    
+        <h3><a name="rst">rst - rhetorical structure</a></h3>
+	    <p>
+	        The <tt>rst</tt> layer provides an analysis of the text in <a href="http://www.sfu.ca/rst/">Rhetorical Structure Theory</a>, using a  set of
+	        32 rhetorical relations, arranged at two hierarchical levels. Each segment of the text, which may be a sentence, clause or other unit, is integrated into a tree of utterances
+	        forming the rhetorical structure of the document. Segmentation guidelines are identical to the guidelines for the <a href="RSTDT-tagging-ref-manual.pdf">RST Discourse Treebank</a>, and structuring and discourse relation guidelines can be found <a href="https://corpling.uis.georgetown.edu/wiki/doku.php?id=gum:rst">here</a>. Analyses are created using <a href="http://corpling.uis.georgetown.edu/rstweb/info/">rstWeb</a>.
+	    </p>
+	    <table class="stripes">
+	        <tr><td class="anno_name">(node) kind</td><td>for dominating structures (single segment span or group of segments)</td></tr>
+	        <tr><td class="anno_name">(node) type</td><td>for group structures (simple span or multinuc)</td></tr>
+	        <tr><td class="anno_name">(edge) type</td><td>rst edge type (rst relation or multinuc relation)</td></tr>
+	        <tr><td class="anno_name">relname</td><td>rst relation name (elaboration-additional, explanation-evidence, etc.; see <a href="https://corpling.uis.georgetown.edu/wiki/doku.php?id=gum:rst">guidelines</a>)</td></tr>
+	    </table>
+	    <img src="img/GUM_rst_anno.png" width="800" border="1" alt="rhetorical structure annotations" style="display: block; margin: 20px 10px 10px 30px; "/>
+
+        <h3><a name="rsd">rsd - rhetorical structure dependencies</a></h3>
+	    <p>
+	        The <tt>rsd</tt> layer gives a dependency conversion of the RST layer, using only the discourse segments and no non-terminal grouping spans or 
+	        coordinate structures. Discourse units are enriched automatically with a number of annotations.
+	    </p>
+	    <table class="stripes">
+	        <tr><td class="anno_name">rsd_rel</td><td>the discourse relation that the span heads</td></tr>
+	        <tr><td class="anno_name">head_func</td><td>root syntactic dependency function of the span</td></tr>
+	        <tr><td class="anno_name">head_pos</td><td>root UPOS tag of the span</td></tr>
+	        <tr><td class="anno_name">head_tok</td><td>root word form of the span</td></tr>
+	        <tr><td class="anno_name">len</td><td>span length in tokens</td></tr>
+	        <tr><td class="anno_name">pos1</td><td>first UPOS tag in the span</td></tr>
+	        <tr><td class="anno_name">stype</td><td>the sentence type containing the span</td></tr>
+	        <tr><td class="anno_name">subord</td><td>the direction of syntactic subordination of the span (LEFT, RIGHT or NONE)</td></tr>
+	        <tr><td class="anno_name">func</td><td>dependency relation name as an edge annotation, ends in _m for multinuclear relations, _r otherwise</td></tr>
+	    </table>
+	    <img src="img/GUM_rsd_anno1.png" width="550" border="1" alt="rhetorical structure annotations" style="display: block; margin: 20px 10px 10px 30px; "/><br/>
+	    <img src="img/GUM_rsd_anno2.png" width="450" border="1" alt="rhetorical structure annotations" style="display: block; margin: 20px 10px 10px 30px; "/>
+											</section>
+
+
+										</article>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+			<!-- Footer -->
+				
+			<!--#include file="footer.html"-->
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

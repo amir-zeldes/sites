@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--version 0.9.1-->
+<transducer>
+
+<ruleset message="qu &gt; kw" desc="qu stand for [kv], also written 'kw'">
+	<rule pat="qu" replace="kw"></rule>
+</ruleset>
+
+<ruleset message="Find foreign morphemes" desc="Identify foreign morphemes with non-German spelling, e.g. -tion in Information">
+	<rule pat="tion" replace="zjon"></rule>
+</ruleset>
+
+<ruleset message="Find syllables" desc="Syllables are recognized using the onset maximization strategy - the longest possible onset is preferred moving from each vowel to the left. Use a hyphen to manually input borders.">
+	<rule pat="-" replace="#"></rule>
+	<!--<rule pat="((h|ß|z?j|zw|kw)((a|e|o)[iuh]?|i(eh)?|u|y|ü|ö|ä))" replace="#\1"></rule>-->
+	<rule pat="([^s]|^)ch" replace="\1ç"></rule> <!-- protect ch from being syllabified apart, e.g. herzlic-hen -->
+	<rule pat="ck" replace="K"></rule> <!-- protect ck from being syllabified apart, e.g. gluec-kwunsch -->
+	<rule pat="(((s+?(ch)?)?(pf|qu|[wvfbdgkKtpzç]|pp|tt|bb|dd|gg|ff)?([lmnr]+)?|h|ß|z?j|zw|kw)((a|e|o)[iuh]?|i(eh?)?|u|y|ü|ö|ä))" replace="#\1"></rule>
+	<rule pat="ç" replace="ch"></rule>
+	<rule pat="K" replace="ck"></rule>
+	<rule pat="(^.*$)" replace="\1#"></rule>
+	<rule pat="##" replace="#"></rule>
+</ruleset>
+
+<ruleset message="Prohibit impossible syllables" desc="imp">
+	<rule pat="#([^(s|ß|sch|m)])m([aeiouyüöä])" replace="\1#m\2"></rule>
+	<rule pat="#z([lmnr][aeiouyüöä])" replace="z#\1"></rule>
+	<rule pat="#rn([aeiouyüöä])" replace="r#n\1"></rule>
+</ruleset>
+<!--
+<ruleset message="Find prefixes" desc="imp">
+	<rule pat="^#ve#r" replace="#ver-#"></rule>
+</ruleset>
+-->
+<ruleset message="Find stress" desc="Stress is assumed to be word initial, unless certain unstressed prefixes like ver- are found">
+	<rule pat="^([^aeiouyüöä]*)([aeiouyüöä])" replace="\1/\2"></rule>
+</ruleset>
+
+<ruleset message="Identify unstressed verbal prefixes" desc="Prefixes like ver- and be- are unstressed">
+	<rule pat="^#v/er([^aeiouyüöä]*)([aeiouyüöä].*[aeiouyüöä])" replace="#ver\1/\2"></rule>
+	<rule pat="^#b/e([^aeiouyüöä]*)([aeiouyüöä].*[aeiouyüöä])" replace="#be\1/\2"></rule>
+	<rule pat="^#/ent([^aeiouyüöä]*)([aeiouyüöä].*[aeiouyüöä])" replace="#ent\1/\2"></rule>
+	<rule pat="^#g/e([^aeiouyüöä]*)([aeiouyüöä].*[aeiouyüöä])" replace="#ge\1/\2"></rule>
+	<rule pat="^#z/er([^aeiouyüöä]*)([aeiouyüöä].*[aeiouyüöä])" replace="#zer\1/\2"></rule>
+	<rule pat="^#/er([^aeiouyüöä]*)([aeiouyüöä].*[aeiouyüöä])" replace="#er\1/\2"></rule>
+	<rule pat="^#/em(#?)p([^aeiouyüöä]*)([aeiouyüöä].*[aeiouyüöä])" replace="#em\1p\2/\3"></rule>
+</ruleset>
+
+<ruleset message="Glottal stop" desc="No initial and/or stressed syllable (for some speakers no syllable) begins with a vowel - the vowel is preceded by a glottal stop by default">
+	<rule pat="#(/[aeiouyüöä])" replace="#ʔ\1"></rule>
+	<rule pat="^#([aeiouyüöä])" replace="ʔ\1"></rule>
+</ruleset>
+
+<ruleset message="Identify sibilant [ʃ]" desc="The spelling sch and the initial clusters st- and sp- signal the sound [ʃ]">
+	<rule pat="sch" replace="ʃ"></rule>
+	<rule pat="#s([tp])" replace="#ʃ\1"></rule>
+</ruleset>
+
+<ruleset message="consonants" desc="Replace various consonants and digraphs with IPA symbols">
+	<rule pat="v" replace="f"></rule>
+	<rule pat="w" replace="v"></rule>
+	<rule pat="([aou]#?)ch" replace="\1x"></rule>
+	<rule pat="ch" replace="ç"></rule>
+	<rule pat="t?z" replace="ʦ"></rule>
+	<rule pat="tz" replace="ʦ"></rule>
+	<rule pat="ts" replace="ʦ"></rule>
+</ruleset>
+
+<ruleset message="Voice s before vowel" desc="s is voiced and pronounced [z] before vowels in syallble onset">
+	<rule pat="([^s]|^)s(/?[aeiouyüöä])" replace="\1z\2"></rule>
+</ruleset>
+
+<ruleset message="Remove sharp s" desc="ß is treated like /s/, but is not voiced before vowels in syallble onset">
+	<rule pat="ß" replace="s"></rule>
+</ruleset>
+
+<ruleset message="Final voice loss" desc="Voiced obstruents become devoiced in the coda">
+	<rule pat="([^aeou])ig#" replace="\1iç#"></rule>
+	<rule pat="b+([^aeiouyüöä])*#" replace="p\1#"></rule>
+	<rule pat="d+([^aeiouyüöä])*#" replace="t\1#"></rule>
+	<rule pat="g+([^aeiouyüöä])*#" replace="k\1#"></rule>
+	<rule pat="z+([^aeiouyüöä])*#" replace="s\1#"></rule>
+</ruleset>
+
+<ruleset message="Identify vowels" desc="Use orthographic clues (double consonants, the letter h etc.) to determine vowel quality and quantity">
+    <rule pat="([oua])h" replace="\1ː"></rule>
+    <rule pat="([^i]e)h" replace="\1ː"></rule>
+    <rule pat="([üy])h" replace="yː"></rule>
+    <rule pat="([ö])h" replace="øː"></rule>	
+    <rule pat="([^#])h" replace="\1"></rule>
+	<rule pat="ei" replace="@ɪ"></rule>
+	<rule pat="eu" replace="ɔɪ"></rule>
+	<rule pat="au" replace="@ʊ"></rule>
+	<rule pat="ä" replace="e"></rule>
+	<rule pat="i#(tt|pp|ck|tz|dd|bb|gg|ff|ss|mm|nn|ll|rr)" replace="ɪ%#\1"></rule>
+	<rule pat="i(#?[^ːaeiouyüöä#])([^aeiouyüöä#])" replace="ɪ\1\2"></rule>
+	<rule pat="i([lmnr]#)([ptkbdgçʦ])" replace="ɪ\1\2"></rule>
+	<rule pat="ie?([^ː])" replace="iː\1"></rule>
+	<rule pat="o#(tt|pp|ck|tz|dd|bb|gg|ff|ss|mm|nn|ll|rr)" replace="ɔ%#\1"></rule>
+	<rule pat="o(#?[^ːaeiouyüöä#])([^aeiouyüöä#])" replace="ɔ\1\2"></rule>
+	<rule pat="o([lmnr]#)([ptkbdgçʦ])" replace="ɔ\1\2"></rule>
+	<rule pat="o([^ː])" replace="oː\1"></rule>
+	<rule pat="u#(tt|pp|ck|tz|dd|bb|gg|ff|ss|mm|nn|ll|rr)" replace="ʊ%#\1"></rule>
+	<rule pat="u(#?[^ːaeiouyüöä#])([^aeiouyüöä#])" replace="ʊ\1\2"></rule>
+	<rule pat="u([lmnr]#)([ptkbdgçʦ])" replace="ʊ\1\2"></rule>
+	<rule pat="u([^ː])" replace="uː\1"></rule>
+	<rule pat="a#(tt|pp|ck|tz|dd|bb|gg|ff|ss|mm|nn|ll|rr)" replace="@%#\1"></rule>
+	<rule pat="a(#?[^ːaeiouyüöä#])([^aeiouyüöä#])" replace="@\1\2"></rule>
+	<rule pat="a([lmnr]#)([ptkbdgçʦ])" replace="@\1\2"></rule>
+	<rule pat="a([^ː])" replace="aː\1"></rule>
+	<rule pat="@" replace="a"></rule>
+	<rule pat="[yü]#(tt|pp|ck|tz|dd|bb|gg|ff|ss|mm|nn|ll|rr)" replace="ʏ%#\1"></rule>
+	<rule pat="[yü](#?[^ːaeiouyüöä#])([^aeiouyüöä#])" replace="ʏ\1\2"></rule>
+	<rule pat="[yü]([lmnr]#)([ptkbdgçʦ])" replace="ʏ\1\2"></rule>
+	<rule pat="[yü]([^ː])" replace="yː\1"></rule>
+	<rule pat="ö#(tt|pp|ck|tz|dd|bb|gg|ff|ss|mm|nn|ll|rr)" replace="œ%#\1"></rule>
+	<rule pat="ö(#?[^ːaeiouyüöä#])([^aeiouyüöä#])" replace="œ\1\2"></rule>
+	<rule pat="ö([lmnr]#)([ptkbdgçʦ])" replace="œ\1\2"></rule>
+	<rule pat="ö" replace="øː"></rule>
+	<rule pat="e#(tt|pp|ck|tz|dd|bb|gg|ff|ss|mm|nn|ll|rr)" replace="ɛ%#\1"></rule>
+	<rule pat="([^/])e#" replace="\1ə#"></rule>
+	<rule pat="(.*/.*[^/])en#" replace="\1N#"></rule>
+	<rule pat="(.*/.*[^/])em#" replace="\1M#"></rule>
+	<rule pat="([^/])el#" replace="\1L#"></rule>
+	<rule pat="(.*/.*)([^/])er#" replace="\1\2ɐ#"></rule>
+	<rule pat="(/.*[^/])er(n?)#" replace="\1ɐ\2#"></rule>
+	<rule pat="([^/])er#" replace="\1ɛR#"></rule>
+	<rule pat="([^/])e([lnm])#" replace="\1ɛ\2#"></rule>
+	<rule pat="e(#?[^ːaeiouyüöäōʊɔɛɪʏœø#])([^aeiouyüöäōʊɔɛɪʏœøN#])" replace="ɛ\1\2"></rule>
+	<rule pat="e([^ː])" replace="eː\1"></rule>
+	<rule pat="([aeiouyüöäōʊɔɛɪʏœø]ː?)r+([^aeiouyüöäōʊɔɛɪʏœø]*)#" replace="\1R\2#"></rule>
+    <rule pat="ːɐ" replace="ːR"></rule>
+    <rule pat="nN#" replace="nən#"></rule>	<!-- This was added to avoid Auslaut in <-nen> being a syllable with /n/ Anlaut and syllabic N [nN]-->
+</ruleset>
+
+<ruleset message="Identify short suffixes" desc="-lich and -ig are assumed to be short suffixes">
+	<rule pat="(l)?iː(#?)ç" replace="\1ɪ\2ç"></rule>
+</ruleset>
+
+<ruleset message="Engma" desc="replace n with engma before velars">
+	<rule pat="n#([gk])" replace="ŋ#\1"></rule>
+	<rule pat="n[gk]#" replace="ŋ#"></rule>
+</ruleset>
+
+<ruleset message="Double consonant orthography" desc="Remove double consonant orthography while identifying related syllable joints">
+	<rule pat="gg" replace="g"></rule>
+	<rule pat="bb" replace="b"></rule>
+	<rule pat="dd" replace="d"></rule>
+	<rule pat="[ck]k" replace="k"></rule>
+	<rule pat="pp" replace="p"></rule>
+	<rule pat="ff" replace="f"></rule>
+	<rule pat="tt" replace="t"></rule>
+	<rule pat="ss" replace="s"></rule>
+	<rule pat="ll" replace="l"></rule>
+	<rule pat="mm" replace="m"></rule>
+	<rule pat="rr" replace="r"></rule>
+	<rule pat="nn" replace="n"></rule>
+</ruleset>
+
+<ruleset message="Standard R" desc="use standard German uvular [R]">
+	<rule pat="r" replace="ʀ"></rule>
+</ruleset>
+<!--
+<ruleset message="Clear symbols" desc="clear">
+	<rule pat="[#/]" replace=""></rule>
+</ruleset>
+-->
+</transducer>

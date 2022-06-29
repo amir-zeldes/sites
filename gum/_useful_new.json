@@ -1,0 +1,15 @@
+[
+    {"key": "Social Media", "value": 10.62619048},
+    {"key": "E-Mail", "value": 7.008333333},
+    {"key": "Law texts", "value": 5.913131313},
+    {"key": "Public domain fiction", "value": 5.45},
+    {"key": "Biographies (Wikipedia)", "value": 4.892460317},
+    {"key": "Academic - ACL", "value": 4.587301587},
+    {"key": "Academic - misc.", "value": 4.575},
+    {"key": "Ted talks", "value": 2.865909091},
+    {"key": "Fairytales", "value": 2.774242424},
+    {"key": "Fan fiction", "value": 2.271464646},
+    {"key": "Parliament proceedings", "value": 2.219047619},
+    {"key": "Technical documentation", "value": 2.156060606},
+    {"key": "Other", "value": 1.45}
+]

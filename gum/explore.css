@@ -1,0 +1,32 @@
+.action{border: 1px solid navy;color:navy}
+
+#selection{}
+
+table.spinner{margin: 0px !important; display: inline-block; padding: 1px; width: unset} /*max-width: 130px; */
+table.spinner td, table.spinner th{padding: 1px}
+table.spinner div.spinner{padding-right:2px;min-height: 30px; }
+
+#infobox{   
+    max-width: 400px;
+	min-width: 200px;
+	vertical-align: top;
+}
+
+.infocell {padding:1px; height:200px; overflow-y: scroll;    border: 1px solid black;vertical-align: top;}
+#actions td {vertical-align: middle;}
+#thumbnail{max-width: 170px;}
+#summary {display: block}
+#wikihead{margin:0px}
+.wikiheadcell{vertical-align:top}
+
+#nav_table td{vertical-align:top}
+.spin_arrow {
+	line-height:normal;
+	}
+	
+.spinner.action{cursor:pointer}
+
+.highlight{background-color:yellow}
+.ent_highlight{background-color: #4bb1a7}
+
+li > ul{margin-bottom:0.5em}

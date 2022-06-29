@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<transducer>
+
+<ruleset message="Nasal vowel before labials" desc="Nasal vowels are realized as a plain vowel plus [m] before labials">
+	<rule pat="ą([bp])" replace="om\1"></rule>
+	<rule pat="ę([bp])" replace="em\1"></rule>
+</ruleset>
+
+<ruleset message="Nasal vowel before dentals" desc="Nasal vowels are realized as a plain vowel plus [n] before dentals">
+	<rule pat="ą([tdc]|cz)" replace="on\1"></rule>
+	<rule pat="ę([tdc]|cz)" replace="en\1"></rule>
+</ruleset>
+
+<ruleset message="Nasal vowel before palato-dentals" desc="Nasal vowels are realized as a plain vowel plus [ń] before palato-dentals">
+	<rule pat="ą(dź|ci|dzi|ć)" replace="oń\1"></rule>
+	<rule pat="ę(dź|ci|dzi|ć)" replace="eń\1"></rule>
+</ruleset>
+
+<ruleset message="Nasal vowel before velars" desc="Nasal vowels are realized as a plain vowel plus [ŋ] before velars">
+	<rule pat="ą(k|g|ch)" replace="oŋ\1"></rule>
+	<rule pat="ę(k|g|ch)" replace="eŋ\1"></rule>
+</ruleset>
+
+<!--
+<ruleset message="Nasal vowel between soft consonants" desc="Nasal vowels between soft consonants are followed by [j]">
+	<rule pat="(ś|ć|ź|ń|i)(ę|ą)(#?)(ś|ć|ź|ń|[bpwmkgzsc]i)" replace="\1\2j\3\4"></rule>
+</ruleset>
+-->
+
+<ruleset message="Find syllables" desc="Syllables are recognized using the onset maximization strategy - the longest possible onset is preferred moving from each vowel to the left. Use a hyphen to manually input borders.">
+	<rule pat="-" replace="#"></rule>
+	<rule pat="([aeiouyóąę])" replace="\1#"></rule>
+	<rule pat="i#([aeouóąę]#)" replace="i\1"></rule>
+	<rule pat="(o)#i#" replace="\1i#"></rule>
+	<rule pat="([aeiouyóąę]+)#([^aeiouyóąę]+)$" replace="\1\2#"></rule>
+	<rule pat="([aeiouyóąę]+)#([lmnŋrjłń])([^aeiouyóąę]+)" replace="\1\2#\3"></rule>
+	<rule pat="([aeiouyóąę]+)#(dź)(c)([aeiouyóąę]+)" replace="\1\2#\3\4"></rule>
+	<rule pat="([aeiouyóąę]+)#([bpm])([bpm])([aeiouyóąę]+)" replace="\1\2#\3\4"></rule>
+	<rule pat="([aeiouyóąę]+)#([nŋ])([kn])([aeiouyóąę]+)" replace="\1\2#\3\4"></rule>
+	<rule pat="([ąę])#([^aeiouyóąę])([^aeiouyóąę])" replace="\1\2#\3"></rule>
+	<!--<rule pat="((([sś]+?(ch)?)?(qu|[wvfbdżgktpz])?([lmnr]+)?|h|ß|z?j|zw|kw)((a|e|o|ą|ę|ó)|i(e)?|u|y))" replace="#\1"></rule>-->
+	<rule pat="(^.*$)" replace="#\1#"></rule>
+	<rule pat="##" replace="#"></rule>
+</ruleset>
+
+<!--
+<ruleset message="Prohibit impossible syllables" desc="imp">
+	<rule pat="#([^(s|ß|sch|m)])m([aeiouyüöä])" replace="\1#m\2"></rule>
+</ruleset>
+<ruleset message="Find prefixes" desc="imp">
+	<rule pat="^#ve#r" replace="#ver-#"></rule>
+</ruleset>
+
+<ruleset message="Find stress" desc="Stress is assumed to be word initial, unless certain unstressed prefixes like ver- are found">
+	<rule pat="^([^aeiouyüöä]*)([aeiouyüöä])" replace="\1/\2"></rule>
+</ruleset>
+-->
+
+<ruleset message="Glottal stop" desc="No initial syllable begins with a vowel - the vowel is preceded by a glottal stop by default">
+	<rule pat="^#([aeiouó])" replace="ʔ\1"></rule>
+</ruleset>
+
+<ruleset message="Identify palatalization" desc="'i' signals palatalization of the preceding consonant">
+	<rule pat="bi([aeouóęą])" replace="B\1"></rule>
+	<!--<rule pat="bi" replace="Bi"></rule>-->
+	<rule pat="pi([aeouóęą])" replace="P\1"></rule>
+	<!--<rule pat="pi" replace="Pi"></rule>-->
+	<rule pat="wi([aeouóęą])" replace="W\1"></rule>
+	<!--<rule pat="wi" replace="Wi"></rule>-->
+	<rule pat="mi([aeouóęą])" replace="ɱ\1"></rule>
+	<!--<rule pat="mi" replace="ɱi"></rule>-->
+	<rule pat="ni([aeouóęą])" replace="ń\1"></rule>
+	<rule pat="ni" replace="ńi"></rule>
+	<rule pat="ci([aeouóęą])" replace="ć\1"></rule>
+	<rule pat="ci" replace="ći"></rule>
+	<rule pat="zi([aeouóęą])" replace="ź\1"></rule>
+	<rule pat="zi" replace="źi"></rule>	
+	<rule pat="si([aeouóęą])" replace="ś\1"></rule>
+	<rule pat="si" replace="śi"></rule>
+</ruleset>
+
+<ruleset message="Progressive devoicing" desc="'w' and 'rz' are devoiced after voiceless consonants">
+	<rule pat="([ptkćsfś]|ch|cz|sz)rz" replace="\1sz"></rule>
+	<rule pat="([ptkćsfś]|ch|cz|sz)w" replace="\1f"></rule>
+</ruleset>
+
+<ruleset message="Regressive voicing and devoicing" desc="Consonants match the voicing of the following consonant">
+	<rule pat="d(#?[ptkćsfcś])" replace="t\1"></rule>
+	<rule pat="b(#?[ptkćsfcś])" replace="p\1"></rule>
+	<rule pat="g(#?[ptkćsfcś])" replace="k\1"></rule>
+	<rule pat="w(#?[ptkćsfcś])" replace="f\1"></rule>
+	<rule pat="w(#?[ptkćsfcś])" replace="f\1"></rule>
+	<rule pat="dż(#?[ptkćsfcś])" replace="cz\1"></rule>
+	<rule pat="dz(#?[ptkćsfcś])" replace="c\1"></rule>
+	<rule pat="dź(#?[ptkćsfcś])" replace="ć\1"></rule>
+	<rule pat="(rz|ż)(#?[ptkćsfcś])" replace="sz\2"></rule>
+	<rule pat="ź(#?[ptkćsfcś])" replace="ś\1"></rule>
+	<rule pat="z(#?[ptkćsfcś])" replace="s\1"></rule>
+	<rule pat="p(#?([bdgwżź]|rz))" replace="b\1"></rule>
+	<rule pat="t(#?([bdgwżź]|rz))" replace="d\1"></rule>
+	<rule pat="k(#?([bdgwżź]|rz))" replace="g\1"></rule>
+	<rule pat="s(#?([bdgwżź]|rz))" replace="z\1"></rule>
+	<rule pat="ś(#?([bdgwżź]|rz))" replace="ź\1"></rule>
+	<rule pat="c(#?([bdgwżź]|rz))" replace="dz\1"></rule>
+	<rule pat="ć(#?([bdgwżź]|rz))" replace="dź\1"></rule>
+	<rule pat="cz(#?([bdgwżź]|rz))" replace="dż\1"></rule>
+	<rule pat="sz(#?([bdgwżź]|rz))" replace="rz\1"></rule>
+</ruleset>
+
+<ruleset message="Nasalized glide" desc="Before spirants and affricates ń is preceded by j">
+	<rule pat="ń(#?(s|ś|sz|c|ć|cz|dz|dż|dź))" replace="jń\1"></rule>
+</ruleset>
+
+<ruleset message="Identify consonants" desc="Replace various consonants and digraphs with IPA symbols">
+	<rule pat="w" replace="v"></rule>
+	<rule pat="ch" replace="x"></rule>
+	<rule pat="cz" replace="ʧ"></rule>
+	<rule pat="sz" replace="ʃ"></rule>
+	<rule pat="dz" replace="ʣ"></rule>
+	<rule pat="(rz|ż)" replace="ʒ"></rule>
+	<rule pat="dż" replace="ʤ"></rule>
+	<rule pat="dź" replace="ʥ"></rule>
+	<rule pat="ź" replace="ʑ"></rule>
+	<rule pat="ś" replace="ɕ"></rule>
+	<rule pat="ć" replace="ʨ"></rule>
+	<rule pat="c" replace="ʦ"></rule>
+	<rule pat="ń" replace="ɲ"></rule>
+	<rule pat="ł" replace="w"></rule>
+</ruleset>
+
+<ruleset message="Final voice loss" desc="Voiced obstruents become devoiced in the coda of the final syllable and before the ending -my">
+	<rule pat="b([rw])?#(my#)?$" replace="p\1#\2"></rule>
+	<rule pat="d([rw])?#(my#)?$" replace="t\1#\2"></rule>
+	<rule pat="g([rw])?#(my#)?$" replace="k\1#\2"></rule>
+	<rule pat="z([rw])?#(my#)?$" replace="s\1#\2"></rule>
+	<rule pat="v([rw])?#(my#)?$" replace="f\1#\2"></rule>
+	<rule pat="ʣ([rw])?#(my#)?$" replace="ʦ\1#\2"></rule>
+	<rule pat="ʒ([rw])?#(my#)?$" replace="ʃ\1#\2"></rule>
+	<rule pat="ʑ([rw])?#(my#)?$" replace="ɕ\1#\2"></rule>
+	<rule pat="ʥ([rw])?#(my#)?$" replace="ʨ\1#\2"></rule>
+	<rule pat="ʤ([rw])?#(my#)?$" replace="ʧ\1#\2"></rule>
+</ruleset>
+
+<ruleset message="Final w drop after consonant" desc="'w' is omitted after a final consonant">
+    <rule pat="([^aeiouyóąę])w#$" replace="\1#"></rule>
+</ruleset>
+
+<ruleset message="Denazalize final ę" desc="'ę' is pronounces like 'e' in final position">
+    <rule pat="ę#$" replace="e#"></rule>
+</ruleset>
+
+<ruleset message="Identify vowels" desc="Replace vowel characters with corresponding IPA symbols">
+    <rule pat="ó" replace="u"></rule>
+    <rule pat="y" replace="ɨ"></rule>
+    <rule pat="e" replace="ɛ"></rule>
+    <rule pat="ę" replace="E"></rule>
+    <rule pat="ą" replace="O"></rule>
+</ruleset>
+<!--
+<ruleset message="Clear symbols" desc="clear">
+	<rule pat="[#/]" replace=""></rule>
+</ruleset>
+-->
+</transducer>

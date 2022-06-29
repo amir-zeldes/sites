@@ -1,0 +1,279 @@
+body{
+font-family: Verdana, sans-serif;
+font-size:10pt;
+		height: 100%;
+color: #2E2E2E;
+
+}
+
+.contact_table{
+font-size: 10pt; font-family: Verdana, sans-serif; }/*border-top: solid 1px darkgray; border-bottom: solid 1px darkgray}*/
+
+#home .home a, #resources .resources a, #teaching .teaching a, #projects .projects a, #misc .misc a, #publications .publications a
+{
+ background-color: gray;
+}
+
+#navbar {
+position:fixed;
+top:0;
+left:0;
+z-index: 10;
+text-align:center;
+width:100%;
+background-color: #174274;
+		box-shadow: 6px 0px 10px -7px #888, -6px 0px 10px -7px #888;}
+
+#wrapper{	margin: 0 auto;
+		width: 800px;
+		/*background-color:#F8F8F8  	;*/
+		border-left: 1px solid grey;
+		border-right: 1px solid grey;
+		padding: 16px;
+		min-height:100%;
+		margin-top:50px;
+		box-shadow: 6px 0px 10px -7px #888, -6px 0px 10px -7px #888;}
+
+		
+h1 {font-weight: bold; color: rgb(0, 0, 88); font-size: 15pt;}
+h2 {	font-weight:bold;
+	border-right: none;
+	border-left:none;
+	border-bottom: solid 2pt #174274;
+	color:#174274;
+	font-size: 12pt;
+
+}
+h2 a:before {
+    display: block;
+    content: "";
+    height: 60px;
+    margin: -60px 0 0;
+}
+h2.old {font-weight: bold; font-size: 12pt; color: black; padding-top:10px}
+h3 {font-weight: bold; font-size: 10pt; color: #2E2E2E}
+h4 {font-style:italic; font-size: 10pt; color: #2E2E2E; font-weight: normal}
+
+ul > li {
+padding-bottom:10px
+}
+
+
+ul.nav {     
+list-style: none;     
+padding-left: 0;     
+margin-left: 0;     
+overflow: hidden;  
+width: auto;   
+text-align:center
+}
+ul.nav li {     
+display:inline; 
+color: gray;/*#333;     */
+text-align: center; 
+}
+
+ul.nav li a {     
+text-decoration: none;
+/*font-family:courier, monospace;     */
+display: inline-block;     
+border: 1px dashed #000;     
+border-color: gray;
+padding: 10px;     
+margin-right: 5px;     
+background-color: #174274;/*#eaeaea;     */
+color: white;/*#333;     */
+/*width: 8em;     */
+text-align: center; 
+}
+
+ul.nav li a:hover {
+background-color: #cac7bf;
+}     
+
+.under_construction{color:red}
+
+ ul.nav li.corpling a{font-family: Georgia, Times New Roman, Serif;font-style:italic; }/*background-color: #162A41}*/
+h1.corpling{font-family: Georgia, Times New Roman, Serif; font-style:italic; text-align:left; color:white; margin-left:10pt}
+.corpling a{text-decoration: none; color: white}
+
+/*GUM page formatting*/
+.anno_name{font-family: monospace; font-weight: bold; padding: 2px; margin: 2px}
+#gum_stats{border-collapse: collapse;}
+#gum_stats thead th{border-bottom: solid 2px black;}
+#gum_stats td,th{text-align: left; padding: 2px 5px 2px 5px}
+#gum_stats tfoot td{border-top: dashed 1px black}
+
+#download_table{border-collapse: collapse;}
+#download_table thead th{border-bottom: solid 2px black; font-weight: normal; font-style: italic}
+#download_table td,th{text-align: left; padding: 2px 5px 2px 5px}
+
+/*Synannotri formatting */
+
+#content {
+    width: 90%;
+    padding: 10px;
+    margin-top: 30px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#footer {
+    text-align: center;
+    font-size: smaller;
+    padding-top: 10px;
+    color: #777;
+    background-color: #fff;
+    clear: both;
+}
+
+#footer a {
+    color: #777;
+    background-color: #fff;
+    font-weight: bold;
+    border: 0;
+}
+
+#footer a:hover {
+    color: red;
+    background-color: #fff;
+}
+
+#footer img, #svg img {
+    border: 0;
+}
+
+#svg {
+    text-align: center;
+    margin-top: 10px;
+}
+
+#phrase {
+    display: none;
+}
+
+#phraseform{
+width: 68%;
+}
+
+#graph {
+    text-align: center;
+}
+
+#graph img {
+    border: 0;
+}
+
+#form2 {
+    top: 28px;
+    left: 0;
+    width: 100%;
+    position: absolute;
+}
+
+#options {
+    text-align: left;
+}
+
+button {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: black;
+    background-color: #fefefe;
+    padding: 3px 10px;
+    margin-right: 10px;
+}
+
+button:hover {
+    color: #900;
+    background-color: #fff;
+    border: 1px solid #444;
+}
+
+textarea {
+    width: 100%;
+}
+
+fieldset {
+    color: black;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    margin: 10px 0;
+}
+
+#actions {
+    font-size: 0.8em;
+}
+
+#intro {
+    width: 49%;
+    float: left;
+    margin: 0;
+    padding-right: 5px;
+}
+
+#news, #about, #usage {
+    font-size: 0.8em;
+}
+
+#news {
+    margin: 0;
+    padding-left: 5px;
+    width: 49%;
+    float: right;
+}
+
+#intro, #news {
+    margin-top: 20px;
+}
+
+#tip {
+    color: #555;
+    text-align: center;
+    font-style: italic;
+}
+
+textarea {
+    padding: 2px;
+}
+
+textarea, button, select {
+    border: 1px solid #ccc;
+}
+
+.page_links{text-indent: 0; padding: 8px; border-collapse: collapse}
+.page_links td {border-width: 0px 1px 0px 1px; border-color: black; border-style:solid}
+.page_links a {text-decoration: underline; display: inline-block; padding: 3px; color: blue}
+.demo_query{color:blue; text-decoration: none; font-family:'Lucida Console', monospace; font-style: italic}
+
+#annotators li {
+  float:left;
+ width:30%;}
+ 
+ #others{
+ display:inline-block;
+ }
+
+ .announce_red{
+ font-weight:bold;
+ color:red;
+ }
+ .announce{
+ font-weight:bold;
+ color:navy;
+ }
+ .space_bottom, .space_bottom ul li:first-child{margin-top: 10px}
+ .terminal{
+	     font-family: courier, monospace;
+    color: #f7f3f3;
+    width: 750px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    font-size: 14px;
+	background-color:#2a3744;
+	padding: 5px;
+ }
+ .pwd{color: #05a505}
+ .login{color: #4bb1a7}

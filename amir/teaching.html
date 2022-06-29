@@ -1,0 +1,687 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Amir Zeldes - Teaching</title>
+<link rel="stylesheet" href="assets/css/main.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" href="amir_table.css" type="text/css" charset="utf-8"/>
+<link rel="stylesheet" href="trublu.css" type="text/css" charset="utf-8"/>
+<script type="text/javascript">
+<!--
+// Adapted from QuickSearch script for JabRef HTML export (no Abstract/BibTeX)
+// Version: 3.0
+//
+// Copyright (c) 2006-2011, Mark Schenk
+//
+// This software is distributed under a Creative Commons Attribution 3.0 License
+// http://creativecommons.org/licenses/by/3.0/
+//
+// Features:
+// - intuitive find-as-you-type searching
+//    ~ case insensitive
+//    ~ ignore diacritics (optional)
+//
+// - search with/without Regular Expressions
+// - match BibTeX key
+//
+
+// Search settings
+var noSquiggles = true; 	// ignore diacritics when searching
+var searchRegExp = false; 	// enable RegExp searches
+
+
+if (window.addEventListener) {
+	window.addEventListener("load",initSearch,false); }
+else if (window.attachEvent) {
+	window.attachEvent("onload", initSearch); }
+
+function initSearch() {
+	// check for quick search table and searchfield
+	if (!document.getElementById('qs_table')||!document.getElementById('quicksearch')) { return; }
+
+	// load all the rows and sort into arrays
+	loadTableData();
+	
+	//find the query field
+	qsfield = document.getElementById('qs_field');
+
+	// previous search term; used for speed optimisation
+	prevSearch = '';
+
+	//find statistics location
+	stats = document.getElementById('stat');
+	setStatistics(-1);
+	
+	// set up preferences
+	initPreferences();
+
+	// shows the searchfield
+	document.getElementById('quicksearch').style.display = 'block';
+	document.getElementById('qs_field').onkeyup = quickSearch;
+}
+
+function loadTableData() {
+	// find table and appropriate rows
+	searchTable = document.getElementById('qs_table');
+	var allRows = searchTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+	// split all rows into entryRows and infoRows (e.g. abstract, review, bibtex)
+	entryRows = new Array();
+
+	// get data from each row
+	entryRowsData = new Array();
+	
+	BibTeXKeys = new Array();
+	
+	for (var i=0, k=0, j=0; i<allRows.length;i++) {
+		if (allRows[i].className.match(/entry/)) {
+			entryRows[j] = allRows[i];
+			entryRowsData[j] = stripDiacritics(getTextContent(allRows[i]));
+			allRows[i].id ? BibTeXKeys[j] = allRows[i].id : allRows[i].id = 'autokey_'+j;
+			j ++;
+		}
+	}
+	//number of entries and rows
+	numEntries = entryRows.length;
+}
+
+function quickSearch(){
+	
+	tInput = qsfield;
+
+	if (tInput.value.length == 0) {
+		showAll();
+		setStatistics(-1);
+		qsfield.className = '';
+		return;
+	} else {
+		t = stripDiacritics(tInput.value);
+
+		if(!searchRegExp) { t = escapeRegExp(t); }
+			
+		// only search for valid RegExp
+		try {
+			textRegExp = new RegExp(t,"i");
+			qsfield.className = '';
+		}
+			catch(err) {
+			prevSearch = tInput.value;
+			qsfield.className = 'invalidsearch';
+			return;
+		}
+	}
+	
+	// count number of hits
+	var hits = 0;
+
+	// start looping through all entry rows
+	for (var i = 0; cRow = entryRows[i]; i++){
+
+		// only show search the cells if it isn't already hidden OR if the search term is getting shorter, then search all
+		if(cRow.className.indexOf('noshow')==-1 || tInput.value.length <= prevSearch.length){
+			var found = false; 
+
+			if (entryRowsData[i].search(textRegExp) != -1 || BibTeXKeys[i].search(textRegExp) != -1){ 
+				found = true;
+			}
+			
+			if (found){
+				cRow.className = 'entry show';
+				hits++;
+			} else {
+				cRow.className = 'entry noshow';
+			}
+		}
+	}
+
+	// update statistics
+	setStatistics(hits)
+	
+	// set previous search value
+	prevSearch = tInput.value;
+}
+
+
+// Strip Diacritics from text
+// http://stackoverflow.com/questions/990904/javascript-remove-accents-in-strings
+
+// String containing replacement characters for stripping accents 
+var stripstring = 
+    'AAAAAAACEEEEIIII'+
+    'DNOOOOO.OUUUUY..'+
+    'aaaaaaaceeeeiiii'+
+    'dnooooo.ouuuuy.y'+
+    'AaAaAaCcCcCcCcDd'+
+    'DdEeEeEeEeEeGgGg'+
+    'GgGgHhHhIiIiIiIi'+
+    'IiIiJjKkkLlLlLlL'+
+    'lJlNnNnNnnNnOoOo'+
+    'OoOoRrRrRrSsSsSs'+
+    'SsTtTtTtUuUuUuUu'+
+    'UuUuWwYyYZzZzZz.';
+
+function stripDiacritics(str){
+
+    if(noSquiggles==false){
+        return str;
+    }
+
+    var answer='';
+    for(var i=0;i<str.length;i++){
+        var ch=str[i];
+        var chindex=ch.charCodeAt(0)-192;   // Index of character code in the strip string
+        if(chindex>=0 && chindex<stripstring.length){
+            // Character is within our table, so we can strip the accent...
+            var outch=stripstring.charAt(chindex);
+            // ...unless it was shown as a '.'
+            if(outch!='.')ch=outch;
+        }
+        answer+=ch;
+    }
+    return answer;
+}
+
+// http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+// NOTE: must escape every \ in the export code because of the JabRef Export...
+function escapeRegExp(str) {
+  return str.replace(/[-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+function setStatistics (hits) {
+	if(hits < 0) { hits=numEntries; }
+	if(stats) { stats.firstChild.data = hits + '/' + numEntries}
+}
+
+function getTextContent(node) {
+	// Function written by Arve Bersvendsen
+	// http://www.virtuelvis.com
+	
+	if (node.nodeType == 3) {
+	return node.nodeValue;
+	} // text node
+	if (node.nodeType == 1 && node.className != "infolinks") { // element node
+	var text = [];
+	for (var chld = node.firstChild;chld;chld=chld.nextSibling) {
+		text.push(getTextContent(chld));
+	}
+	return text.join("");
+	} return ""; // some other node, won't contain text nodes.
+}
+
+function showAll(){
+	for (var i = 0; i < numEntries; i++){ entryRows[i].className = 'entry show'; }
+}
+
+function clearQS() {
+	qsfield.value = '';
+	showAll();
+}
+
+function redoQS(){
+	showAll();
+	quickSearch(qsfield);
+}
+
+function updateSetting(obj){
+	var option = obj.id;
+	var checked = obj.value;
+
+	switch(option)
+	 {
+	 case "opt_useRegExp":
+	   searchRegExp=!searchRegExp;
+	   redoQS();
+	   break;
+	 case "opt_noAccents":
+	   noSquiggles=!noSquiggles;
+	   loadTableData();
+	   redoQS();
+	   break;
+	 }
+}
+
+function initPreferences(){
+	if(noSquiggles){document.getElementById("opt_noAccents").checked = true;}
+	if(searchRegExp){document.getElementById("opt_useRegExp").checked = true;}
+}
+
+function toggleSettings(){
+	var togglebutton = document.getElementById('showsettings');
+	var settings = document.getElementById('settings');
+	
+	if(settings.className == "hidden"){
+		settings.className = "show";
+		togglebutton.innerText = "close settings";
+		togglebutton.textContent = "close settings";
+	}else{
+		settings.className = "hidden";
+		togglebutton.innerText = "settings...";		
+		togglebutton.textContent = "settings...";
+	}
+}
+
+-->
+</script>
+<style type="text/css">
+/*body { background-color: white; font-family: Arial, sans-serif; font-size: 13px; line-height: 1.2; padding: 1em; color: #2E2E2E; margin: auto 2em; }
+*/
+form#quicksearch { width: auto; border-style: solid; border-color: gray; border-width: 1px 0px; padding: 0.7em 0.5em; display:none; position:relative; }
+span#searchstat {padding-left: 1em;}
+
+div#settings { margin-top:0.7em; /* border-bottom: 1px transparent solid; background-color: #efefef; border: 1px grey solid; */ }
+div#settings ul {margin: 0; padding: 0; }
+div#settings li {margin: 0; padding: 0 1em 0 0; display: inline; list-style: none; }
+div#settings li + li { border-left: 2px #efefef solid; padding-left: 0.5em;}
+div#settings input { margin-bottom: 0px;}
+
+div#settings.hidden {display:none;}
+
+#showsettings { border: 1px grey solid; padding: 0 0.5em; float:right; line-height: 1.6em; text-align: right; }
+#showsettings:hover { cursor: pointer; }
+
+.invalidsearch { background-color: red; }
+input[type="button"] { background-color: #efefef; border: 1px #2E2E2E solid;}
+
+table { width: 100%; empty-cells: show; border-spacing: 0em 0.2em; margin: 1em 0em; border-style: none; }
+th, td { border: 1px gray solid; border-width: 1px 1px; padding: 0.5em; vertical-align: top; text-align: left; }
+th { background-color: #efefef; }
+td + td, th + th { border-left: none; }
+
+td a { color: navy; text-decoration: none; }
+td a:hover  { text-decoration: underline; }
+
+tr.noshow { display: none;}
+tr.highlight td { background-color: #EFEFEF; border-top: 2px #2E2E2E solid; font-weight: bold; }
+tr.abstract td, tr.review td, tr.bibtex td { background-color: #EFEFEF; text-align: justify; border-bottom: 2px #2E2E2E solid; }
+tr.nextshow td { border-bottom: 1px gray solid; }
+
+tr.bibtex pre { width: 100%; overflow: auto; white-space: pre-wrap;}
+p.infolinks { margin: 0.3em 0em 0em 0em; padding: 0px; }
+
+@media print {
+	p.infolinks, #qs_settings, #quicksearch, t.bibtex { display: none !important; }
+	tr { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body id="teaching">
+
+<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner" style="max-width: 1000px;">
+
+													<!-- Header -->
+								<header id="header">
+									<span><a href="https://corpling.uis.georgetown.edu/corpling/" class="logo"><strong><i class="fa fa-home">&nbsp;</i>Corpling@GU</strong></a> - <a class="logo" href="https://corpling.uis.georgetown.edu/amir/"><strong>Amir Zeldes</strong></a></span>
+									<ul class="icons">
+										<li><a href="https://corpling.uis.georgetown.edu/wiki/" class="icon fa-wikipedia-w"><span class="label">Wiki</span></a></li>
+										<li><a href="https://corpus-tools.org/" class="icon fa icon-annis"><span class="label">Corpus-tools.org</span></a></li>
+										<li><a href="https://www.github.com/" class="icon fa-github"><span class="label">GitHub</span></a></li>
+										<!--<li><a href="" >
+										<span class="iconstack fa-stack">
+												<i class="iconstack fa fa-search fa-stack-2x"></i>
+												<strong class="fa-stack-1x calendar-text">CQP</strong>
+										</span></a></li>-->
+									</ul>
+								</header>
+								
+								<section>
+									<header class="major">
+<h1>Teaching</h1>
+								</header>
+
+<form action="" id="quicksearch">
+<input type="text" id="qs_field" autocomplete="off" placeholder="Type to search..." /> <input type="button" onclick="clearQS()" value="clear" />
+<span id="searchstat">Matching entries: <span id="stat">0</span></span>
+<div id="showsettings" onclick="toggleSettings()">settings...</div>
+<div id="settings" class="hidden">
+<ul>
+<li><input type="checkbox" class="search_setting" id="opt_useRegExp" onchange="updateSetting(this)"><label for="opt_useRegExp"> use RegExp</label></li>
+<li><input type="checkbox" class="search_setting" id="opt_noAccents" onchange="updateSetting(this)"><label for="opt_noAccents"> ignore accents</label></li>
+</ul>
+</div>
+</form>
+<div class="CSSTableGenerator">
+<table id="qs_table" border="1">
+
+ <tr class="term pubtype"><td class="term pubtype">Spring 2022</td></tr>
+<tr id="ZeldesSpring2022" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-504 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-504">Machine Learning for Linguistics</a> (Mon+Wed 11:00-12:15, Car Barn 303) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesSpring2022a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-765 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-765">Computational Discourse Modelling</a> (Mon+Wed 2:00-3:15, Car Barn 317) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Fall 2021</td></tr>
+<tr id="ZeldesFall2021" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-362 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-362">Introduction to Natural Language Processing</a> (Mon+Wed 11:00-12:15, ICC 213) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesFall2021a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-367 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-367">Computational Corpus Linguistics</a> (Mon+Wed 2:00-3:15, Maguire 102) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Fall 2020</td></tr>
+<tr id="ZeldesFall2020" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-362 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-362">Introduction to Natural Language Processing</a> (Mon+Wed 11:00-12:15, online due to COVID-19) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesFall2020a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-367 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-367">Computational Corpus Linguistics</a> (Mon+Wed 2:00-3:15, online due to COVID-19) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Spring 2020</td></tr>
+<tr id="ZeldesSpring2020" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-504 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-504">Machine Learning for Linguistics</a> (Mon+Wed 11:00-12:15, Healy 104) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesSpring2020a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-469 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-469">Analyzing Language Data with R</a> (Mon+Wed 2:00-3:15, Maguire 103) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Fall 2019</td></tr>
+<tr id="ZeldesFall2019" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-362 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-362">Introduction to Natural Language Processing</a> (Mon+Wed 11:00-12:15, Walsh 497) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesFall2019a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-367 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-367">Computational Corpus Linguistics</a> (Mon+Wed 2:00-3:15, Healy 103) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Spring 2019</td></tr>
+<tr id="ZeldesFall2018" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-469 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-469">Analyzing Language Data with R</a> (Mon+Wed 2:00-3:15, ICC 117) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesFall2018a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-765 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-765">Computational Discourse Models</a> (Mon+Wed 11:00-12:15, Walsh 497) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Fall 2018</td></tr>
+<tr id="ZeldesFall2018" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-362 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-362">Introduction to Natural Language Processing</a> (Mon+Wed 11:00-12:15, Maguire 103) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesFall2018a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-367 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-367">Computational Corpus Linguistics</a> (Mon+Wed 2:00-3:15, Walsh 495) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Fall 2017</td></tr>
+<tr id="ZeldesFall2017" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-362 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-362">Introduction to Natural Language Processing</a> (Mon+Wed 11:00-12:15, WGR 311) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesFall2017a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-367 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-367">Computational Corpus Linguistics</a> (Mon+Wed 2:00-3:15, Reiss 261A) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Spring-Summer 2017</td></tr>
+<tr id="ZeldesScheiderSpring2017" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	Corpus Linguistics, <a href="https://lsa2017.uky.edu/node/36">2017 Linguistic Institute, Language Across Space and Time</a>, together with Nathan Schneider (July 5-August 1, Tuesday/Friday 11:00 AM-12:50 PM, Lexington, KY) [UKY]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesSpring2017" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-264 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-264">Multilingual and Parallel Corpora</a> (Mon+Wed 11:00-12:15, NEWN 202) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesSpring2017a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-469 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-469">Analyzing Language Data with R</a> (Mon+Wed 2:00-3:15, CBN 303) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Fall 2016</td></tr>
+<tr id="ZeldesFall2016" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-367 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-367">Computational Corpus Linguistics</a> (Mon+Wed 2:00-3:15, Healy 104) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesFall2016a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-765 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-765">Computational Discourse Modelling</a> (Mon+Wed 11:00-12:15, ICC 208A) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Spring-Summer 2016</td></tr>
+<tr id="ZeldesSpring2015" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-362 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-362">Introduction to Natural Language Processing</a> (Mon+Wed 11:00-12:15, WGR 206) [GU]
+	</li></ul>
+</td></tr>
+<tr id="ZeldesSummer2015" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	Statistical Methods for Corpora using R (Summer course at <a href="http://cl.indiana.edu/clif16/courses.html">CLiF 2016</a>, June 6-10, 2016) [Indiana University]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Fall 2015</td></tr>
+<tr id="ZeldesFall2015" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-367 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-367">Computational Corpus Linguistics</a> (Mon+Wed 2:00-3:15, Healy 104) [GU]
+	</li></ul>
+</td></tr>
+
+ <tr class="term pubtype"><td class="term pubtype">Summer 2015</td></tr>
+<tr id="ZeldesSummer2015" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-465 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-465">Non-Standard Syntax Annotation</a> (Mon+Wed 2-3:15, ICC 219B) [GU]
+	</li></ul>
+</td></tr>
+
+<tr id="ZeldesSummer2015a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-469 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-469">Analyzing Language Data with R</a> (Mon+Wed 11-12:15, ICC 223A) [GU]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Fall 2014</td></tr>
+<tr id="ZeldesFall2014" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	LING-367 <a href="http://courses.georgetown.edu/index.cfm?Action=View&CourseID=LING-367">Computational Corpus Linguistics</a> (Mon+Wed 9:30-10:45, CBN302) [GU]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Summer 2014</td></tr>
+<tr id="Zeldes2014" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	MGK-Mini-Workshop <a href="http://www.sfb632.uni-potsdam.de/en/news/411-2014-07-03-mgk-statistic-workshop.html">Mixed-effects Models and Logistic Regression with R</a> (Campus Golm, Building 14, Room 2.15/16, July 3, 2014) [Potsdam University]
+	</li></ul>
+</td></tr>
+
+<tr id="Zeldes2014a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 20063 SE <a href="https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/lehre/sose-14/se_5220063">Introduction to Coptic Grammar</a> (Wed 14-16 DOR24) [HU Berlin]
+	</li></ul>
+</td></tr>
+
+<tr id="Zeldes2014b" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 20061 KO <a href="https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/lehre/sose-14/ko_5220061">Research Colloquium Corpus Linguistics</a> (Wed 18-20 DOR24, together with Hagen Hirschmann) [HU Berlin]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Fall 2013</td></tr>
+<tr id="Zeldes2013/14" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	Block Seminar Multilayer and Parallel Corpora. An Introduction Using ANNIS (13.11.2013) [Hong Kong City University]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Summer 2013</td></tr>
+<tr id="Zeldes2013" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 20015 SE <a href="https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/lehre/alte_jahrgaenge/sose-13/se_5220015">Theoretical and Empirical Approaches to Argument Structure</a> (Fri 12-14 DOR24 3.103) [HU Berlin]
+	</li></ul>
+</td></tr>
+
+<tr id="Zeldes2013a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	10817 <a href="https://sites.google.com/site/noncompositionality2013/statistical-methods-in-linguistics">Statistical Methods in Linguistics</a> (intensive course 1-5 July 2013) [Hebrew University of Jerusalem]
+	</li></ul>
+</td></tr>
+
+<tr id="Zeldes2013b" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	<a href="https://sites.google.com/site/noncompositionality2013/syllabi#Zeldes">Corpus Linguistics and Non-Compositionality</a> (Minerva Non-Compositionality Summer School, Jerusalem 23-28 June 2013) [Hebrew University of Jerusalem]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Fall 2012</td></tr>
+<tr id="Zeldes2012/13" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 20077 SE <a href="https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/lehre/ws_1213/se_5220077">Syntactic Annotation</a> (Fri 12-14 DOR24 3.103)
+	</li></ul>
+</td></tr>
+
+<tr id="Zeldes2012/13a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	<a href="http://wordspace.collocations.de/doku.php/corpus_tutorial:dgfs2013">Statistics for linguists with R</a> (one day tutorial at the 35th annual meeting of the DGfS in Potsdam, 12 March 2013)
+	</li></ul>
+</td></tr>
+
+<tr id="Zeldes2012/13b" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	<a href="https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/lehre/ws_1213/se_5220077">Multifactorial Methods with R</a> (Empirical Methods Workshop 2013)
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Summer 2012</td></tr>
+<tr id="Zeldes2012" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 20004 SE <a href="https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/lehre/sose_12/se_5220004">Revival of the Hebrew Language</a> (Wed 12-14 DOR24 3.138) [HU Berlin]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Fall 2011</td></tr>
+<tr id="Zeldes2011/12" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	<a href="https://www.linguistik.hu-berlin.de/forschung/methodenworkshop/workshops">R II - Advanced Course in Statistical Methods with R</a> (Empirical Methods Workshop 2012) [HU Berlin]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Summer 2011</td></tr>
+<tr id="ZeldesSummer2011" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	R Workshop 'Binary Logistic Regression &amp; Linear Mixed Effect Models' (24 May 2011 at <a href="http://www.zas.gwz-berlin.de/">ZAS</a> in Berlin)
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Fall 2010</td></tr>
+<tr id="ZeldesFall2010" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 20104 GK Introduction to Linguistics (Wed 10-14 DOR24 1.102) [HU Berlin]
+	</li></ul>
+</td></tr>
+
+<tr id="ZeldesFall2010a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	R II - Advanced Course in Statistical Methods with R (Empirical Methods Workshop 2011) [HU Berlin]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Summer 2010</td></tr>
+<tr id="Summer2010" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 20146 UE Statistical Methods in Linguistics (Mon 16-18 DOR24 1.302) [HU Berlin]
+	</li></ul>
+</td></tr>
+
+<tr id="ZeldesSummer2010" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 20169 KO Corpus Linguistics Colloquium (Tue 18-20 DOR24 3.102, together with Hagen Hirschmann) [HU Berlin]
+	</li></ul>
+</td></tr>
+
+<tr id="ZeldesSummer2010a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	Corpus Linguistics (Empirical Methods Workshop 2010) [HU Berlin]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Summer 2009</td></tr>
+<tr id="ZeldesSummer2009" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 20120 GK Introduction to Morphology (Mon 14-16 BE1 42) [HU Berlin]
+	</li></ul>
+</td></tr>
+
+<tr id="ZeldesSummer2009a" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	Corpus Linguistics (block seminar, together with Hagen Hirschmann) [University of Oldenburg]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Fall 2008</td></tr>
+<tr id="ZeldesFall2008" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 20154 SE Parallel Corpora (Tue 16-18 DOR24 1.102) [HU Berlin]
+	</li></ul>
+</td></tr>
+ <tr class="term pubtype"><td class="term pubtype">Summer 2008</td></tr>
+<tr id="ZeldesSummer2008" class="entry"><td>
+	<ul class="autolist_ul"><li class="autolist">
+	52 185 UE Corpus Linguistics (Tue 18-20 DOR24 1.102) [HU Berlin]
+	</li></ul>
+</td></tr>
+</table>
+</div>
+<footer>
+ <small>Created by <a href="http://jabref.sourceforge.net">JabRef</a> on 2022-01-11</small>
+</footer>
+
+<!-- file generated by JabRef -->
+</section>
+</div></div>
+<!-- file generated by JabRef -->
+<div id="sidebar">
+						<div class="inner">
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+<ul>
+    <li class="home"><a href="index.html">Home</a></li>
+    <li class="publications"><a href="publications.html">Publications</a></li>
+    <li class="teaching"><a href="teaching.html">Teaching</a></li>
+    <li class="download"><a href="download.html">Downloads</a></li>
+    <li class="misc"><a href="misc.html">Misc</a></li>
+    <li><a class="icon fa-external-link-square" href="../corpling"> Corpling@GU</a></li>
+</ul>
+									
+									
+								</nav>
+								<footer id="footer">
+									<p class="copyright">&copy; Amir Zeldes. All rights reserved. <br/>Design adapted from: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+</div>
+</div>
+
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="assets/js/main.js"></script>
+
+</body>
+</html>

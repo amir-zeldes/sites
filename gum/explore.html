@@ -1,0 +1,408 @@
+<!DOCTYPE HTML>
+<!--
+	TXT by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>GUM - The Georgetown University Multilayer Corpus</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/custom.css" />
+		<link rel="stylesheet" href="explore.css" />
+<style>.annis-wrapped-htmlvis-GUM div.htmlvis {
+	width: 500px;
+	white-space: normal !important;
+}
+
+.annis-wrapped-htmlvis-GUM .tok {
+	white-space: inherit;
+}
+
+.annis-wrapped-htmlvis-GUM .tok:after {
+	content: " ";
+}
+
+.annis-wrapped-htmlvis-GUM .named {
+	display: inline-block;
+}
+
+.annis-wrapped-htmlvis-GUM .entity {
+	display: inline-block;
+	border: 1px solid;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-right: 3px;
+	margin-bottom: 2px;
+	margin-top: 2px;
+}
+
+.annis-wrapped-htmlvis-GUM .named > .entity {
+	border-style: solid !important;
+	background-color: rgba(255, 240, 6, 0.5);
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="person"] {
+	border-color: blue !important;
+	outline-color: black !important;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="place"] {
+	border-color: red !important;
+	outline-color: black !important;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="abstract"] {
+	border-color: cyan !important;
+	outline-color: black !important;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="object"] {
+	border-color: green !important;
+	outline-color: black !important;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="time"] {
+	border-color: pink !important;
+	outline-color: black !important;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="event"] {
+	border-color: gold !important;
+	outline-color: black !important;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="substance"] {
+	border-color: purple !important;
+	outline-color: black !important;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="organization"] {
+	border-color: brown !important;
+	outline-color: black !important;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="animal"] {
+	border-color: orange !important;
+	outline-color: black !important;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="plant"] {
+	border-color: magenta !important;
+	outline-color: black !important;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="person"]:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f183";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-left: 1px;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="place"]:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f041";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-left: 1px;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="abstract"]:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f0c2";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-left: 1px;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="object"]:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f1b2";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-left: 1px;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="time"]:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f017";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-left: 1px;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="event"]:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f0f3";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-left: 1px;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="substance"]:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f0c3";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-left: 1px;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="organization"]:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f19c";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-left: 1px;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="animal"]:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f1b0";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-left: 1px;
+}
+
+.annis-wrapped-htmlvis-GUM .entity[entity_type="plant"]:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f18c";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	margin-left: 2px;
+	padding-left: 1px;
+}
+
+.annis-wrapped-htmlvis-GUM .identity {
+	display: inline;
+	padding-top: 3px;
+}
+
+.annis-wrapped-htmlvis-GUM .identity .wikify:before {
+	font-family: FontAwesome;
+	color: gray;
+	content: "\f266";
+	vertical-align: middle;
+	position: relative;
+	top: -12px;
+	font-size: 70%;
+	margin-right: 2px;
+	text-decoration: none;
+}
+
+.annis-wrapped-htmlvis-GUM .wikify {
+	text-decoration: none;
+}
+
+.annis-wrapped-htmlvis-GUM .wikify:hover {
+	color: blue !important;
+	text-decoration: underline;
+}
+
+.annis-wrapped-htmlvis-GUM .wikify:hover:before {
+	color: blue !important;
+}
+
+.annis-wrapped-htmlvis-GUM div.htmlvis {
+	font-size: 12pt;
+	width: 600px;
+	white-space: normal !important;
+}
+
+.annis-wrapped-htmlvis-GUM .copt_word:after {
+	content: " ";
+	font-style: normal;
+}
+
+.annis-wrapped-htmlvis-GUM .tok a {
+	text-decoration: none !important;
+	color: inherit;
+}
+
+.annis-wrapped-htmlvis-GUM .tok a:hover {
+	text-decoration: underline !important;
+	color: blue;
+}
+
+.annis-wrapped-htmlvis-GUM .hi[rend=bold] {
+	font-weight: bold;
+}
+
+.annis-wrapped-htmlvis-GUM .hi[rend=italic] {
+	font-variant: italic;
+}
+
+.annis-wrapped-htmlvis-GUM h2 {
+	font-weight: bold;
+}</style>	</head>
+	<body class="is-preload">
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="wikipedia.js"></script>
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+					<div class="logo container">
+						<div>
+							<h1><a href="index.html" id="logo">GUM</a>:</h1>
+							<p> The <b>G</b>eorgetown <b>U</b>niversity <b>M</b>ultilayer Corpus</p>
+						</div>
+					</div>
+				</header>
+
+			<!-- Nav -->
+
+			<!--#include file="nav.html"-->
+
+			<!-- Main -->
+				<section id="main">
+					<div class="container">
+						<div class="row">
+							
+							<!--#include file="sidebar.html"-->
+							
+							<div class="col-9 col-12-medium imp-medium">
+								<div class="content">
+
+									<!-- Content -->
+
+										<article class="box page-content">
+
+											<header>
+												<h2>Explore</h2>
+												<p>What can you do with GUM annotations?</p>
+											</header>
+
+											<section>
+												<!--<span class="image featured"><img src="img/conllu_example_neg.png" alt="GUM in CoNLLU format" /></span>-->
+					<p>The annotations in GUM's data model allow access to deep semantic and pragmatic information about what each document is talking about, why things are said, and which parts are more prominent than others. Documents analyzed with these types of annotations allow us to do much more than passive reading in a normal browser document:</p>
+					<ul>
+						<li><b>Semantic find</b> - ever wish you could search for all mentions of some person or place in a document, regardless of <i>how</i> they are referred to?</li>
+						<li><b>Main points</b> - using discourse annotation graphs we can:
+							<ul>
+								<li>Jump to the main points of the entire text</li>
+								<li>Highlight the core or 'nucleus' part of each paragraph, possibly hiding the rest of the text for speed reading</li>
+								<li>Restrict semantic searches just to main points (e.g. entities occurring in a paragraph nucleus)</li>
+							</ul>
+						</li>
+						<li><b>Summary of events</b> - get an overview of everything someone or something says or does in a text</li>
+						<li><b>Search by function</b> - find all parts of a text supplying <i>evidence</i>, giving <i>attribution</i> for sources of statements, or <i>conceding</i> something which contradicts what the text says</li>
+						<li><b>Entity linking</b> - know whether there is a Wikipedia article for each entity in the text, and if so, get a link to read more about it</li>
+					</ul>
+					<h2>Try it out!</h2>
+					<h3>Example document</h3>
+					<div id="actions">
+						<div id="discourse">
+						</div>
+						<div id="entities">
+						</div>
+					</div>
+					<table id="nav_table">
+					<tr>
+					<td>
+					<div id="selection" class="annis-wrapped-htmlvis-GUM infocell">
+					&nbsp;
+					</div>
+					</td>
+					<td>
+					<div id="infobox" class="infocell"><table id="wikihead"><tr><td class="wikiheadcell"><span id="title"></span></td><td class="wikiheadcell"><img id="thumbnail"/></td></tr></table><span id="summary">&nbsp;</span><span id="map"></span></div>
+					</td>
+					</tr>
+					</table>
+					<div id="doc_container" style="border: 2px solid black; color: black !important;padding:2px; overflow-y: scroll; height:600px;">">
+					
+					</div>
+					<script src="explore.js"></script>
+					<script>$.get("GUM_academic_enjambment.html").done(function doc_html(data){
+						$("#doc_container").html(data);
+						$.each($("li.item_span:not(:has(.tok))"), function(index, value) {
+							$(this).css("display","none");
+						});
+						var toknum=1;
+						$.each($(".tok"), function(index, value) {
+							$(this).attr("id","tok" + toknum);
+							toknum++;
+						});
+						setup();
+					});
+					</script>
+
+	   
+								</section>
+
+
+										</article>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+			<!-- Footer -->
+				
+			<!--#include file="footer.html"-->
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

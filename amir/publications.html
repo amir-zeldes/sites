@@ -1,0 +1,1477 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Amir Zeldes - Publications</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" href="assets/css/main.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<link rel="stylesheet" href="amir_table.css" type="text/css" charset="utf-8"/>
+<link rel="stylesheet" href="trublu.css" type="text/css" charset="utf-8"/>
+<script type="text/javascript">
+<!--
+// Adapted from QuickSearch script for JabRef HTML export (no Abstract/BibTeX)
+// Version: 3.0
+//
+// Copyright (c) 2006-2011, Mark Schenk
+//
+// This software is distributed under a Creative Commons Attribution 3.0 License
+// http://creativecommons.org/licenses/by/3.0/
+//
+// Features:
+// - intuitive find-as-you-type searching
+//    ~ case insensitive
+//    ~ ignore diacritics (optional)
+//
+// - search with/without Regular Expressions
+// - match BibTeX key
+//
+
+// Search settings
+var noSquiggles = true; 	// ignore diacritics when searching
+var searchRegExp = false; 	// enable RegExp searches
+
+
+if (window.addEventListener) {
+	window.addEventListener("load",initSearch,false); }
+else if (window.attachEvent) {
+	window.attachEvent("onload", initSearch); }
+
+function initSearch() {
+	// check for quick search table and searchfield
+	if (!document.getElementById('qs_table')||!document.getElementById('quicksearch')) { return; }
+
+	// load all the rows and sort into arrays
+	loadTableData();
+	
+	//find the query field
+	qsfield = document.getElementById('qs_field');
+
+	// previous search term; used for speed optimisation
+	prevSearch = '';
+
+	//find statistics location
+	stats = document.getElementById('stat');
+	setStatistics(-1);
+	
+	// set up preferences
+	initPreferences();
+
+	// shows the searchfield
+	document.getElementById('quicksearch').style.display = 'block';
+	document.getElementById('qs_field').onkeyup = quickSearch;
+}
+
+function loadTableData() {
+	// find table and appropriate rows
+	searchTable = document.getElementById('qs_table');
+	var allRows = searchTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+	// split all rows into entryRows and infoRows (e.g. abstract, review, bibtex)
+	entryRows = new Array();
+
+	// get data from each row
+	entryRowsData = new Array();
+	
+	BibTeXKeys = new Array();
+	
+	for (var i=0, k=0, j=0; i<allRows.length;i++) {
+		if (allRows[i].className.match(/entry/)) {
+			entryRows[j] = allRows[i];
+			entryRowsData[j] = stripDiacritics(getTextContent(allRows[i]));
+			allRows[i].id ? BibTeXKeys[j] = allRows[i].id : allRows[i].id = 'autokey_'+j;
+			j ++;
+		}
+	}
+	//number of entries and rows
+	numEntries = entryRows.length;
+}
+
+function quickSearch(){
+	
+	tInput = qsfield;
+
+	if (tInput.value.length == 0) {
+		showAll();
+		setStatistics(-1);
+		qsfield.className = '';
+		return;
+	} else {
+		t = stripDiacritics(tInput.value);
+
+		if(!searchRegExp) { t = escapeRegExp(t); }
+			
+		// only search for valid RegExp
+		try {
+			textRegExp = new RegExp(t,"i");
+			qsfield.className = '';
+		}
+			catch(err) {
+			prevSearch = tInput.value;
+			qsfield.className = 'invalidsearch';
+			return;
+		}
+	}
+	
+	// count number of hits
+	var hits = 0;
+
+	// start looping through all entry rows
+	for (var i = 0; cRow = entryRows[i]; i++){
+
+		// only show search the cells if it isn't already hidden OR if the search term is getting shorter, then search all
+		if(cRow.className.indexOf('noshow')==-1 || tInput.value.length <= prevSearch.length){
+			var found = false; 
+
+			if (entryRowsData[i].search(textRegExp) != -1 || BibTeXKeys[i].search(textRegExp) != -1){ 
+				found = true;
+			}
+			
+			if (found){
+				cRow.className = 'entry show';
+				hits++;
+			} else {
+				cRow.className = 'entry noshow';
+			}
+		}
+	}
+
+	// update statistics
+	setStatistics(hits)
+	
+	// set previous search value
+	prevSearch = tInput.value;
+}
+
+
+// Strip Diacritics from text
+// http://stackoverflow.com/questions/990904/javascript-remove-accents-in-strings
+
+// String containing replacement characters for stripping accents 
+var stripstring = 
+    'AAAAAAACEEEEIIII'+
+    'DNOOOOO.OUUUUY..'+
+    'aaaaaaaceeeeiiii'+
+    'dnooooo.ouuuuy.y'+
+    'AaAaAaCcCcCcCcDd'+
+    'DdEeEeEeEeEeGgGg'+
+    'GgGgHhHhIiIiIiIi'+
+    'IiIiJjKkkLlLlLlL'+
+    'lJlNnNnNnnNnOoOo'+
+    'OoOoRrRrRrSsSsSs'+
+    'SsTtTtTtUuUuUuUu'+
+    'UuUuWwYyYZzZzZz.';
+
+function stripDiacritics(str){
+
+    if(noSquiggles==false){
+        return str;
+    }
+
+    var answer='';
+    for(var i=0;i<str.length;i++){
+        var ch=str[i];
+        var chindex=ch.charCodeAt(0)-192;   // Index of character code in the strip string
+        if(chindex>=0 && chindex<stripstring.length){
+            // Character is within our table, so we can strip the accent...
+            var outch=stripstring.charAt(chindex);
+            // ...unless it was shown as a '.'
+            if(outch!='.')ch=outch;
+        }
+        answer+=ch;
+    }
+    return answer;
+}
+
+// http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+// NOTE: must escape every \ in the export code because of the JabRef Export...
+function escapeRegExp(str) {
+  return str.replace(/[-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+function setStatistics (hits) {
+	if(hits < 0) { hits=numEntries; }
+	if(stats) { stats.firstChild.data = hits + '/' + numEntries}
+}
+
+function getTextContent(node) {
+	// Function written by Arve Bersvendsen
+	// http://www.virtuelvis.com
+	
+	if (node.nodeType == 3) {
+	return node.nodeValue;
+	} // text node
+	if (node.nodeType == 1 && node.className != "infolinks") { // element node
+	var text = [];
+	for (var chld = node.firstChild;chld;chld=chld.nextSibling) {
+		text.push(getTextContent(chld));
+	}
+	return text.join("");
+	} return ""; // some other node, won't contain text nodes.
+}
+
+function showAll(){
+	for (var i = 0; i < numEntries; i++){ entryRows[i].className = 'entry show'; }
+}
+
+function clearQS() {
+	qsfield.value = '';
+	showAll();
+}
+
+function redoQS(){
+	showAll();
+	quickSearch(qsfield);
+}
+
+function updateSetting(obj){
+	var option = obj.id;
+	var checked = obj.value;
+
+	switch(option)
+	 {
+	 case "opt_useRegExp":
+	   searchRegExp=!searchRegExp;
+	   redoQS();
+	   break;
+	 case "opt_noAccents":
+	   noSquiggles=!noSquiggles;
+	   loadTableData();
+	   redoQS();
+	   break;
+	 }
+}
+
+function initPreferences(){
+	if(noSquiggles){document.getElementById("opt_noAccents").checked = true;}
+	if(searchRegExp){document.getElementById("opt_useRegExp").checked = true;}
+}
+
+function toggleSettings(){
+	var togglebutton = document.getElementById('showsettings');
+	var settings = document.getElementById('settings');
+	
+	if(settings.className == "hidden"){
+		settings.className = "show";
+		togglebutton.innerText = "close settings";
+		togglebutton.textContent = "close settings";
+	}else{
+		settings.className = "hidden";
+		togglebutton.innerText = "settings...";		
+		togglebutton.textContent = "settings...";
+	}
+}
+
+-->
+</script>
+<style type="text/css">
+/*body { background-color: white; font-family: Arial, sans-serif; font-size: 13px; line-height: 1.2; padding: 1em; color: #2E2E2E; margin: auto 2em; }
+*/
+form#quicksearch { width: auto; border-style: solid; border-color: gray; border-width: 1px 0px; padding: 0.7em 0.5em; display:none; position:relative; }
+span#searchstat {padding-left: 1em;}
+
+div#settings { margin-top:0.7em; /* border-bottom: 1px transparent solid; background-color: #efefef; border: 1px grey solid; */ }
+div#settings ul {margin: 0; padding: 0; }
+div#settings li {margin: 0; padding: 0 1em 0 0; display: inline; list-style: none; }
+div#settings li + li { border-left: 2px #efefef solid; padding-left: 0.5em;}
+div#settings input { margin-bottom: 0px;}
+
+div#settings.hidden {display:none;}
+
+#showsettings { border: 1px grey solid; padding: 0 0.5em; float:right; line-height: 1.6em; text-align: right; }
+#showsettings:hover { cursor: pointer; }
+
+.invalidsearch { background-color: red; }
+input[type="button"] { background-color: #efefef; border: 1px #2E2E2E solid;}
+
+table { width: 100%; empty-cells: show; border-spacing: 0em 0.2em; margin: 1em 0em; border-style: none; }
+th, td { border: 1px gray solid; border-width: 1px 1px; padding: 0.5em; vertical-align: top; text-align: left; }
+th { background-color: #efefef; }
+td + td, th + th { border-left: none; }
+
+td a { color: navy; text-decoration: none; }
+td a:hover  { text-decoration: underline; }
+
+tr.noshow { display: none;}
+tr.highlight td { background-color: #EFEFEF; border-top: 2px #2E2E2E solid; font-weight: bold; }
+tr.abstract td, tr.review td, tr.bibtex td { background-color: #EFEFEF; text-align: justify; border-bottom: 2px #2E2E2E solid; }
+tr.nextshow td { border-bottom: 1px gray solid; }
+
+tr.bibtex pre { width: 100%; overflow: auto; white-space: pre-wrap;}
+p.infolinks { margin: 0.3em 0em 0em 0em; padding: 0px; }
+
+@media print {
+	p.infolinks, #qs_settings, #quicksearch, t.bibtex { display: none !important; }
+	tr { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body id="publications">
+
+<div id="wrapper">
+				<!-- Main -->
+					<div id="main">
+						<div class="inner" style="max-width: 1000px;">
+
+													<!-- Header -->
+								<header id="header">
+									<span><a href="https://corpling.uis.georgetown.edu/corpling/" class="logo"><strong><i class="fa fa-home">&nbsp;</i>Corpling@GU</strong></a> - <a class="logo" href="https://corpling.uis.georgetown.edu/amir/"><strong>Amir Zeldes</strong></a></span>
+									<ul class="icons">
+										<li><a href="https://corpling.uis.georgetown.edu/wiki/" class="icon fa-wikipedia-w"><span class="label">Wiki</span></a></li>
+										<li><a href="https://corpus-tools.org/" class="icon fa icon-annis"><span class="label">Corpus-tools.org</span></a></li>
+										<li><a href="https://www.github.com/" class="icon fa-github"><span class="label">GitHub</span></a></li>
+										<!--<li><a href="" >
+										<span class="iconstack fa-stack">
+												<i class="iconstack fa fa-search fa-stack-2x"></i>
+												<strong class="fa-stack-1x calendar-text">CQP</strong>
+										</span></a></li>-->
+									</ul>
+								</header>
+								
+								<section>
+									<header class="major">
+
+										<h1>Publications</h1>
+									</header>
+<form action="" id="quicksearch">
+<input type="text" id="qs_field" autocomplete="off" placeholder="Type to search..." /> <input class="small" type="button" onclick="clearQS()" value="clear" />
+<span id="searchstat">Matching entries: <span id="stat">0</span></span>
+<div id="showsettings" onclick="toggleSettings()">settings...</div>
+<div id="settings" class="hidden">
+<ul>
+<li><input type="checkbox" class="search_setting" id="opt_useRegExp" onchange="updateSetting(this)"><label for="opt_useRegExp"> use RegExp</label></li>
+<li><input type="checkbox" class="search_setting" id="opt_noAccents" onchange="updateSetting(this)"><label for="opt_noAccents"> ignore accents</label></li>
+</ul>
+</div>
+</form>
+<div class="CSSTableGenerator">
+<table id="qs_table" border="1">
+
+<!--
+<tr><td width="25%">Authors</td><td width="30%">Title</td><td width="5%">Year</td><td width="30%">Journal/Proceedings/Collection</td><td width="10%">Link</td></tr>
+-->
+ <tr class="Book pubtype"><td class="Book pubtype">&nbsp;</td></tr>&nbsp;
+<tr id="Zeldes2018" class="entry"><td><a href="https://books.google.com/books?id=q7JjDwAAQBAJ&printsec=frontcover"><img src="img/mcs.jpg" alt="Multilayer Corpus Studies" style="height: 120px; float:left; margin-right: 10px; border: 1px solid black"/></a>
+	<ul><li class="autolist book">Zeldes, Amir 
+	(2018)
+	<i>Multilayer Corpus Studies</i>.	<br/>(Routledge Advances in Corpus Linguistics 22.) <br/>London: Routledge, 274 pp.&nbsp;<br/>
+	[<a href="https://www.crcpress.com/Multilayer-Corpus-Studies/Zeldes/p/book/9781138082533">publisher website</a>]&nbsp;
+	[<a href="https://books.google.com/books?id=q7JjDwAAQBAJ&printsec=frontcover">Google Books preview</a>]&nbsp;</li>
+</ul></td></tr>
+ <tr id="Zeldes2013" class="entry"><td><a href="https://books.google.com/books?id=TM1nsKyS3ToC&printsec=frontcover"><img src="img/pias.jpg" alt="Productivity in Argument Selection" style="height: 120px; float:left; margin-right: 10px; border: 1px solid black"></a>
+	<ul><li class="autolist book">Zeldes, Amir 
+	(2012)
+	<i>Productivity in Argument Selection. From Morphology to Syntax</i>.<br/>(Trends in Linguistics: Studies and Monographs 260.) <br/>Berlin &amp; Boston: De Gruyter, xx+282 pp.&nbsp;<br/>[<a href="http://www.degruyter.com/view/product/203720">publisher website</a>]&nbsp;[<a href="https://books.google.com/books?id=TM1nsKyS3ToC&printsec=frontcover">Google Books preview</a>]&nbsp;</li>
+</ul></td></tr>
+ <tr class="Article pubtype"><td class="Article pubtype">&nbsp;</td></tr>&nbsp;
+<tr id="Zeldes2022Scope" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir (2022)
+	"Can we Fix the Scope for Coreference? Problems and Solutions for Benchmarks beyond OntoNotes". <i>Dialogue and Discourse</i> 13(1), 41&ndash;62.&nbsp;<br/>
+	[<a href="https://journals.uic.edu/ojs/index.php/dad/article/view/11706">paper</a>]&nbsp;[<a href="https://arxiv.org/abs/2112.09742">preprint</a>]</li>
+</ul></td></tr>
+&nbsp;
+<tr id="SanguinettiEtAl2022" class="entry"><td>
+	<ul><li class="autolist">Sanguinetti, Manuela, Cassidy, Lauren, Bosco, Cristina, Çetinoğlu, Özlem, Cignarella, Alessandra Teresa, Lynn, Teresa, Rehbein, Ines, Ruppenhofer, Josef, Seddah, Djam&eacute; and Zeldes, Amir (2022)
+	"Treebanking User-Generated Content: A UD Based Overview of Guidelines, Corpora and Unified Recommendations". <i>Language Resources and Evaluation</i>.<br/>
+	[<a href="https://arxiv.org/abs/2011.02063">preprint</a>] [<a href="https://doi.org/10.1007/s10579-022-09581-9">doi</a>]</li>
+</ul></td></tr>
+&nbsp;
+<tr id="SchroederZeldes2020" class="entry"><td>
+	<ul><li class="autolist">Schroeder, Caroline T. and Zeldes, Amir (2020)
+	"A Collaborative Ecosystem for Digital Coptic Studies". <i>Journal of Data Mining and Digital Humanities</i>. Special Issue on Collecting, Preserving, and Disseminating Endangered Cultural Heritage for New Understandings through Multilingual Approaches, 1&ndash;9.<br/>
+	[<a href="https://arxiv.org/abs/1912.05082">preprint</a>] [<a href="https://jdmdh.episciences.org/6797">paper</a>]</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesYang2020" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Liu, Yang (2020)
+	"A Neural Approach to Discourse Relation Signal Detection". <i>Dialogue and Discourse</i> 11(2), 1–33.&nbsp;<br/>
+	[<a href="https://journals.uic.edu/ojs/index.php/dad/article/view/11372/9733">paper</a>]</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2017" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir (2017)
+	"The GUM Corpus: Creating Multilayer Resources in the Classroom". <i>Language Resources and Evaluation</i> 51(3), 581–612.&nbsp;<br/>
+	[<a href="http://dx.doi.org/10.1007/s10579-016-9343-x">DOI</a>] [<a href="http://rdcu.be/uONb">Springer Nature - Read Online Only</a>] [<a href="pdf/GUM_paper_prepub.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="GaetaZeldes2017" class="entry"><td>
+	<ul><li class="autolist">Gaeta, Livio and Zeldes, Amir
+	(2017)
+	"Between VP and NN: On the Constructional Types of German <i>-er</i> Compounds". <i>Constructions and Frames</i> 9(1), 1&ndash;40.&nbsp;<br/>
+	[<a href="pdf/Between_VP_and_NN_prepub.pdf">prepub version</a>]
+	</li>
+</ul></td></tr>
+&nbsp;
+<tr id="SpalekZeldes2015" class="entry"><td>
+	<ul><li class="autolist">Spalek, Katharina* and Zeldes, Amir*
+	(2017)
+	"Converging Evidence for the Relevance of Alternative Sets: Data from NPs with Focus Sensitive Particles in German". <i>Language and Cognition</i> 9(1), 24&ndash;51.&nbsp;<br/>
+	[<a href="http://dx.doi.org/10.1017/langcog.2015.12">DOI</a>] [<a href="pdf/alternatives_prepub.pdf">prepub version</a>]
+	</li>
+</ul></td></tr>
+&nbsp;
+<tr id="OdebrechtEtAl2016" class="entry"><td>
+	<ul><li class="autolist">Odebrecht, Carolin, Belz, Malte, Zeldes, Amir, L&uuml;deling, Anke and Krause, Thomas 
+	(2017)
+	"RIDGES Herbology - Designing a Diachronic Multi-Layer Corpus". <i>Language Resources and Evaluation</i> 51(3), 695&ndash;725.&nbsp;<br/>[<a href="http://www.readcube.com/articles/10.1007/s10579-016-9374-3">link</a>] [<a href="dx.doi.org/10.1007/s10579-016-9374-3">DOI</a>] [<a href="pdf/LRE_RIDGESHerbology_prepub.pdf">prepub version</a>]
+	</li>
+</ul></td></tr>
+&nbsp;
+<tr id="SchroederZeldes2015" class="entry"><td>
+	<ul><li class="autolist">Schroeder, Caroline T. and Zeldes, Amir 
+	(2016)
+	"Raiders of the Lost Corpus". <i>Digital Humanities Quarterly</i> 10(2).&nbsp;<br/>[<a href="http://digitalhumanities.org/dhq/vol/10/2/000247/000247.html">link</a>]
+	</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2016c" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir (2016)
+	"Probabilistic Pragmatics and Probabilistic Experience. A Response to Franke and J&auml;ger". <i>Zeitschrift f&uuml;r Sprachwissenschaft [=German Journal of Linguistics]</i> 35(1), 109&ndash;116.&nbsp;<br/>
+	[<a href="http://dx.doi.org/10.1515/zfs-2016-0008">DOI</a>] [<a href="pdf/prob_prag_zeldes_2016.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="KrauseZeldes2016" class="entry"><td>
+	<ul><li class="autolist">Krause, Thomas and Zeldes, Amir 
+	(2016)
+	"ANNIS3: A New Architecture for Generic Corpus Query and Visualization". <i>Digital Scholarship in the Humanities</i> 31(1), 118&ndash;139.&nbsp;<br/>[<a href="http://dx.doi.org/10.1093/llc/fqu057">DOI</a>] [<a href="http://dsh.oxfordjournals.org/content/digitalsh/early/2014/12/02/llc.fqu057.full.pdf">early access version</a>] [<a href="pdf/ANNIS3_DSH_prepub.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+
+<tr id="LeeEtAl2015" class="entry"><td>
+	<ul><li class="autolist">Lee, John, Yeung, Chak Yan, Zeldes, Amir, Reznicek, Marc, Lüdeling, Anke and Webster, Jonathan
+	(2015)
+	"CityU Corpus of Essay Drafts of English Language Learners: A Corpus of Textual Revision in Second Language Writing". <i>Language Resources and Evaluation</i> 49(3), 659&ndash;683.&nbsp;<br/>
+	[<a href="http://dx.doi.org/10.1007/s10579-015-9301-z">DOI</a>] [<a href="pdf/annis_cityu_prepub.pdf">prepub version</a>]
+	</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesSchroeder2015" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Schroeder, Caroline T.
+	(2015)
+	"Computational Methods for Coptic: Developing and Using Part-of-Speech Tagging for Digital Scholarship in the Humanities". <i>Digital Scholarship in the Humanities</i> 30(1), 164&ndash;176.&nbsp;<br/>
+	[<a href="http://dx.doi.org/10.1093/llc/fqv043">DOI</a>] [<a href="pdf/Computational_Methods_for_Coptic_prepub.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="RomaryZeldesZipser2015" class="entry"><td>
+	<ul><li class="autolist">Romary, Laurent, Zeldes, Amir and Zipser, Florian 
+	(2015)
+	"&lt;tiger2/&gt; - Serialising the ISO SynAF Syntactic Object Model". <i>Language Resources and Evaluation</i> 49(1), 1&ndash;18.&nbsp;<br/>[<a href="http://dx.doi.org/10.1007/s10579-014-9288-x">DOI</a>]</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2013a" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2013)
+	"Productive Argument Selection: Is Lexical Semantics Enough?". <i>Corpus Linguistics and Linguistic Theory</i> 9(2), 263&ndash;291.<br/>[<a href="http://dx.doi.org/10.1515/cllt-2013-0006">DOI</a>] [<a href="pdf/Productive_Argument_Selection_Prepub.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2013b" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2013)
+	"Komposition als Konstruktionsnetzwerk im fortgeschrittenen L2-Deutsch [=Compounding as a network of constructions in advanced L2 German]". <i>Zeitschrift f&uuml;r germanistische Linguistik [=Journal of German Linguistics]</i> 41(2), 240&ndash;276.<br/>[<a href="http://dx.doi.org/10.1515/zgl-2013-0014">DOI</a>] [<a href="pdf/Komposita_L2_prepub.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2013c" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2013)
+	"Is Modern Hebrew Standard Average European? The View from European". <i>Linguistic Typology</i> 17(3), 439&ndash;470.<br/>[<a href="http://dx.doi.org/10.1515/lity-2013-0021">DOI</a>] [<a href="pdf/LT_Hebrew_SAE.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="HirschmannLudelingZeldes2012" class="entry"><td>
+	<ul><li class="autolist">Hirschmann, Hagen, L&uuml;deling, Anke and Zeldes, Amir 
+	(2012)
+	"Measuring and Coding Language Change: An Evolving Study in a Multilayer Corpus Architecture". <i>ACM Journal on Computing and Cultural Heritage (JOCCH)</i> 5(1), 4:1-4:16.<br/>[<a href="http://dx.doi.org/10.1145/2160165.2160169">DOI</a>] [<a href="https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/mitarbeiter-innen/hagen/Hirschmann_et_al_JOCCH2011">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ChiarcosFiedlerGrubicEtAl2011" class="entry"><td>
+	<ul><li class="autolist">Chiarcos, Christian, Fiedler, Ines, Grubic, Mira, Haida, Andreas, Hartmann, Katharina, Ritz, Julia, Schwarz, Anne, Zeldes, Amir and Zimmermann, Malte 
+	(2011)
+	"Information Structure in African Languages: Corpora and Tools". <i>Language Resources and Evaluation</i> 45(3), 361&ndash;374.<br/>[<a href="http://dx.doi.org/10.1007/s10579-011-9153-0">DOI</a>] &nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="CraneBabeuBammanEtAl2009" class="entry"><td>
+	<ul><li class="autolist">Crane, Gregory, Babeu, Alison, Bamman, David, Breuel, Thomas, Cerrato, Lisa, Deckers, Daniel, L&uuml;deling, Anke, Mimno, David, Singhal, Rashmi, Smith, David A. and Zeldes, Amir 
+	(2009)
+	"Classics in the Million Book Library". <i>Digital Humanities Quarterly</i> 3(1).<br/>[<a href="http://www.digitalhumanities.org/dhq/vol/003/1/000034/000034.html">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="PetrovaSolfRitzEtAl2009" class="entry"><td>
+	<ul><li class="autolist">Petrova, Svetlana, Solf, Michael, Ritz, Julia, Chiarcos, Christian and Zeldes, Amir 
+	(2009)
+	"Building and Using a Richly Annotated Interlinear Diachronic Corpus: The Case of Old High German Tatian". <i>Traitement automatique des langues</i> 50(2), 47&ndash;71.&nbsp;<br/>[<a href="https://atala.org/IMG/pdf/TAL-2009-50-2-02-Petrova.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="LuedelingZeldes2008" class="entry"><td>
+	<ul><li class="autolist">L&uuml;deling, Anke and Zeldes, Amir 
+	(2008)
+	"Three Views on Corpora: Corpus Linguistics, Literary Computing, and Computational Linguistics". <i>Jahrbuch f&uuml;r Computerphilologie</i> 9, 149&ndash;178.<br/>[<a href="http://computerphilologie.tu-darmstadt.de/jg07/luedzeldes.html">OA online version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2007a" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2007)
+	"Abstracting Suffixes: A Morphophonemic Approach to Polish Morphological Analysis". <i>Zeitschrift f&uuml;r Sprachwissenschaft [=German Journal of Linguistics]</i> 26(2), 347&ndash;370.<br/>[<a href="http://dx.doi.org/10.1515/ZFS.2007.023">DOI</a>] &nbsp;</li>
+</ul></td></tr>
+ <tr class="InCollection pubtype"><td class="InCollection pubtype">&nbsp;</td></tr>&nbsp;
+<tr id="Zeldes2020architecture" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2021)
+	"Corpus Architecture". In: Paquot, Magali &amp; Gries, Stefan Th. (eds.), <i>A Practical Handbook of Corpus Linguistics</i>. Heidelberg: Springer, 49&ndash;73.<br/>[<a href="https://doi.org/10.1007/978-3-030-46216-1_3">DOI</a>] &nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldestoappear" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2018)
+	"The Case for Caseless Prepositional Constructions with <i>voller</i> in German". In: Boas, Hans C. and Ziem, Alexander (eds.), <i>Constructional Approaches to Syntactic Structures in German</i>. (Trends in Linguistics: Studies and Monographs.) Berlin: De Gruyter, 245&ndash;285.<br/>[<a href="pdf/case_for_caseless.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2018a" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2018)
+	"Compounds and Productivity in Advanced L2 German Writing: A Constructional Approach". In: Ortega, Lourdes, Tyler, Andrea, Uno, Mariko and Park, Hae In (eds.), <i>Usage-inspired L2 Instruction: Researched Pedagogy</i>. Amsterdam: Benjamins, 237&ndash;265.<br/>[<a href="pdf/Compounds_and_Productivity_Zeldes_revised.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="LuedelingRitzStedeEtAl2016" class="entry"><td>
+	<ul><li class="autolist">L&uuml;deling, Anke, Ritz, Julia, Stede, Manfred and Zeldes, Amir 
+	(2016)
+	"Corpus Linguistics and Information Structure Research". In: F&eacute;ry, Caroline and Ichihara, Shinichiro (eds.), <i>The Oxford Handbook of Information Structure</i>. Oxford: Oxford University Press, 599&ndash;617.<br/>[<a href="https://global.oup.com/academic/product/the-oxford-handbook-of-information-structure-9780199642670">publisher website</a>]&nbsp;[<a href="pdf/LuedelingEtAl2016_prepub.pdf">prepub version</a>]</li>
+</ul></td></tr>
+&nbsp;
+<tr id="PetrovaZeldes2015" class="entry"><td>
+	<ul><li class="autolist">Petrova, Svetlana and Zeldes, Amir 
+	(2015)
+	"How exceptional is CP recursion in Germanic OV languages? Corpus-based evidence from Middle Low German". In: Gippert, Jost and Gehrke, Ralf (eds.), <i>Historical Corpora: Challenges and Perspectives</i>. (Korpuslinguistik und interdisziplin&auml;re Perspektiven auf Sprache 5.) T&uuml;bingen: Narr, 151&ndash;164.&nbsp;<br/>
+	[<a href="https://books.google.com/books?id=7anlBgAAQBAJ&lpg=PP1&pg=PA151#v=onepage&q&f=false">Google Books</a>]</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesKanbar2014" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Kanbar, Ghazwan 
+	(2014)
+	"Arabisch und Hebr&auml;isch [=Arabic and Hebrew]". In: Krifka, Manfred, B&#322;aszczak, Joanna, Le&szlig;m&ouml;llmann, Annette, Meinunger, Andr&eacute;, Stiebels, Barbara, Tracy, Rosemarie and Truckenbrodt, Hubert (eds.), <i>Das mehrsprachige Klassenzimmer [=The Multilingual Classroom]</i>. Heidelberg: Springer, 135&ndash;174.<br/>[<a href="http://link.springer.com/chapter/10.1007%2F978-3-642-34315-5_7">publisher website</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="GaetaZeldes2012a" class="entry"><td>
+	<ul><li class="autolist">Gaeta, Livio and Zeldes, Amir 
+	(2012)
+	"Deutsche Komposita zwischen Syntax und Morphologie: Ein korpusbasierter Ansatz [=German Compounds between Syntax and Morphology: A Corpus Based Approach]". In: Gaeta, Livio and Schl&uuml;cker, Barbara (eds.), <i>Das Deutsche als kompositionsfreudige Sprache: Strukturelle Eigenschaften und systembezogene Aspekte [=German as a Compound-Happy Language: Strucutural Properties and System-Related Aspects]</i>. (Linguistik - Impulse &amp; Tendenzen 46.) Berlin: De Gruyter, 197&ndash;217.&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="LuedelingHirschmannZeldes2011" class="entry"><td>
+	<ul><li class="autolist">L&uuml;deling, Anke, Hirschmann, Hagen and Zeldes, Amir 
+	(2011)
+	"Variationism and Underuse Statistics in the Analysis of the Development of Relative Clauses in German". In: Kawaguchi, Yuji, Minegishi, Makoto and Viereck, Wolfgang (eds.), <i>Corpus Analysis and Diachronic Linguistics</i>. (Tokyo University of Foreign Studies, Studies in Linguistics 3.) Amsterdam: John Benjamins, 37&ndash;57.&nbsp;</li>
+</ul></td></tr>
+ <tr class="InProceedings pubtype"><td class="InProceedings pubtype">&nbsp;</td></tr>&nbsp;
+  <tr id="ZeldesEtAl2021_DISRPT" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Zeldes, Liu, Yang Janet, Iruskieta, Mikel, Muller, Philippe, Braud, Chloé and Badene, Sonia
+	(2021)
+	"The DISRPT 2021 Shared Task on Elementary Discourse Unit Segmentation, Connective Detection, and Relation Classification". In: <i>Proceedings of the 2nd Shared Task on Discourse Relation Parsing and Treebanking (DISRPT 2021)</i>. Punta Cana, Dominican Republic, 1&ndash;12.<br/>
+	[<a href="https://aclanthology.org/2021.disrpt-1.1">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="GesslerEtAl2021_DisCoDisCo" class="entry"><td>
+	<ul><li class="autolist">Gessler, Luke, Behzad, Shabnam, Liu, Yang Janet, Peng, Siyao, Zhu, Yilun and Zeldes, Amir
+	(2021)
+	"DisCoDisCo at the DISRPT2021 Shared Task: A System for Discourse Segmentation, Classification, and Connective Detection". In: <i>Proceedings of the 2nd Shared Task on Discourse Relation Parsing and Treebanking (DISRPT 2021)</i>. Punta Cana, Dominican Republic, 51&ndash;62.<br/>
+	[<a href="https://aclanthology.org/2021.disrpt-1.6">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="ZhuEtAl2021b" class="entry"><td>
+	<ul><li class="autolist">Zhu, Yilun, Pradhan, Sameer and Zeldes, Amir
+	(2021)
+	"Anatomy of OntoGUM &ndash; Adapting GUM to the OntoNotes Scheme to Evaluate Robustness of SOTA Coreference Algorithms". In: <i>Fourth Workshop on Computational Models of Reference, Anaphora and Coreference (CRAC 2021)</i>. Punta Cana, Dominican Republic, 141&ndash;149.<br/>
+	[<a href="https://aclanthology.org/2021.crac-1.15">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="LinZeldes2021" class="entry"><td>
+	<ul><li class="autolist">Lin, Jessica and Zeldes, Amir
+	(2021)
+	"WikiGUM: Exhaustive Entity Linking for Wikification in 12 Genres". In: <i>Proceedings of the Joint 15th Linguistic Annotation Workshop (LAW) and
+3rd Designing Meaning Representations (DMR) Workshop</i>. Punta Cana, Dominican Republic, 170&ndash;175.<br/>
+	[<a href="https://aclanthology.org/2021.law-1.18">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="ZhuEtAl2021" class="entry"><td>
+	<ul><li class="autolist">Zhu, Yilun, Pradhan, Sameer and Zeldes, Amir
+	(2021)
+	"OntoGUM: Evaluating Contextualized SOTA Coreference Resolution on 12 More Genres". In: <i>Proceedings of ACL-IJCNLP 2021</i>. Bangkok, Thailand,  461&ndash;467.<br/>
+	[<a href="https://aclanthology.org/2021.acl-short.59.pdf">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="ManningEtAl2021" class="entry"><td>
+	<ul><li class="autolist">Manning, Emma, Schneider, Nathan and Zeldes, Amir
+	(2021)
+	"A Balanced and Broadly Targeted Computational Linguistics Curriculum". In: <i>Fifth Workshop on Teaching NLP</i> at NAACL 2021.  Mexico City, Mexico, 65&ndash;69.<br/>
+	[<a href="https://www.aclweb.org/anthology/2021.teachingnlp-1.11/">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="GesslerEtAl2021_SCiL" class="entry"><td>
+	<ul><li class="autolist">Gessler, Luke, Peng, Siyao, Liu, Yang, Zhu, Yilun, Behzad, Shabnam and Zeldes, Amir
+	(2021)
+	"Overview of AMALGUM - Large Silver Quality Annotations across English Genres". In: <i>Proceedings of the Society for Computation in Linguistics (SCiL)</i>. Vol. 4 , 434&ndash;437.&nbsp;<br/>
+	[<a href="https://scholarworks.umass.edu/scil/vol4/iss1/53/">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="ZeldesEtAl2020" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir, Martin, Lance and Tu, Sichang
+	(2020)
+	"Exhaustive Entity Recognition for Coptic: Challenges And Solutions". In: <i>Proceedings of the SIGHUM Workshop on Computational Linguistics for Cultural Heritage, Social Sciences, Humanities and Literature (LaTeCH-CLfL 2020)</i>. Barcelona, Spain, 19&ndash;28. &nbsp;<br/>
+	[<a href="https://www.aclweb.org/anthology/2020.latechclfl-1.3.pdf">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="GesslerEtAl2020" class="entry"><td>
+	<ul><li class="autolist">Gessler, Luke, Peng, Siyao, Liu, Yang, Zhu, Yilun, Behzad, Shabnam and Zeldes, Amir
+	(2020)
+	"AMALGUM &ndash; A Free, Balanced, Multilayer English Web Corpus". In: <i>Proceedings of LREC 2020</i>. Marseille, France, 5267&ndash;5275. &nbsp;<br/>
+	[<a href="https://www.aclweb.org/anthology/2020.lrec-1.648.pdf">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="SanguinettiEtAl2020" class="entry"><td>
+	<ul><li class="autolist">Sanguinetti, Manuela, Bosco, Cristina, Cassidy, Lauren, &Ccedil;etino&#287;lu, &Ouml;zlem, Cignarella, Alessandra Teresa, Lynn, Teresa, Rehbein, Ines, Ruppenhofer, Josef, Seddah, Djam&eacute; and Zeldes, Amir
+	(2020)
+	"Treebanking User-Generated Content: A Proposal for a Unified Representation in Universal Dependencies". In: <i>Proceedings of LREC 2020</i>. Marseille, France, 5240&ndash;5250. &nbsp;<br/>
+	[<a href="https://www.aclweb.org/anthology/2020.lrec-1.645.pdf">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="BehzadZeldes2020" class="entry"><td>
+	<ul><li class="autolist">Behzad, Shabnam and Zeldes, Amir
+	(2020)
+	"A Cross-Genre Ensemble Approach to Robust Reddit Part of Speech Tagging". In: <i>Proceedings of the 12th Web as Corpus Workshop (WAC-XII)</i>. Marseille, France, 50&ndash;56. &nbsp;<br/>
+	[<a href="https://www.aclweb.org/anthology/2020.wac-1.7.pdf">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="SlaughterEtAl2019" class="entry"><td>
+	<ul><li class="autolist">Slaughter, Laura, Morgado Da Costa, Luis, Miyagawa, So, B&uuml;chler, Marco, Zeldes, Amir and Behlmer, Heike
+	(2019)
+	"The Making of Coptic Wordnet". In: <i>Global Wordnet Conference (GWC 2019)</i>. Wroc&#0322;aw, Poland, 166&ndash;175. &nbsp;<br/>
+	[<a href="https://www.tf.uio.no/english/research/groups/coptic-texts-and-manuscripts/coptic-wordnet/coptic_wordnet__gwc2019_paper_-15.pdf">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="ZeldesDasMazieroEtAl2019b" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir, Das, Debopam, Galani, Erick Maziero, Antonio, Juliano Desiderato and Iruskieta, Mikel
+	(2019)
+	"Introduction to Discourse Relation Parsing and Treebanking (DISRPT): 7th Workshop on Rhetorical Structure Theory and Related Formalisms". In: <i>Proceedings of Discourse Relation Treebanking and Parsing (DISRPT 2019)</i>. Minneapolis, MN, 1&ndash;6. &nbsp;<br/>
+	[<a href="https://www.aclweb.org/anthology/W19-2701">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="ZeldesDasMazieroEtAl2019" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir, Das, Debopam, Galani, Erick Maziero, Antonio, Juliano Desiderato and Iruskieta, Mikel
+	(2019)
+	"The DISRPT 2019 Shared Task on Elementary Discourse Unit Segmentation and Connective Detection". In: <i>Proceedings of Discourse Relation Treebanking and Parsing (DISRPT 2019)</i>. Minneapolis, MN, 97&ndash;104. &nbsp;<br/>
+	[<a href="https://www.aclweb.org/anthology/W19-2713">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="GesslerEtAl2019" class="entry"><td>
+	<ul><li class="autolist">Gessler, Luke, Liu, Yang and Zeldes, Amir 
+	(2019)
+	"A Discourse Signal Annotation System for RST Trees". In: <i>Proceedings of Discourse Relation Treebanking and Parsing (DISRPT 2019)</i>. Minneapolis, MN, 56&ndash;61. &nbsp;<br/>
+	[<a href="https://www.aclweb.org/anthology/W19-2708">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="YuZhuLiuEtAl2019" class="entry"><td>
+	<ul><li class="autolist">Yu, Yue, Zhu, Yilun, Liu, Yang, Liu, Yan, Peng, Siyao, Gong, Mackenzie and Zeldes, Amir 
+	(2019)
+	"GumDrop at the DISRPT2019 Shared Task: A Model Stacking Approach to Discourse Unit Segmentation and Connective Detection". In: <i>Proceedings of Discourse Relation Treebanking and Parsing (DISRPT 2019)</i>. Minneapolis, MN, 133&ndash;143. &nbsp;<br/>
+	[<a href="https://www.aclweb.org/anthology/W19-2717">paper</a>] [<a href="https://arxiv.org/abs/1904.10419">preprint</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="SchroederZeldes2019" class="entry"><td>
+	<ul><li class="autolist">Schroeder, Caroline T. and Zeldes, Amir
+	(2019)
+	"Building a Collaborative Environment for Digital Coptic Studies". <i>Workshop on Digital Humanities to Preserve Knowledge and Cultural Heritage</i>.  Stanford University Center for Spatial and Textual Analysis, Stanford, CA. &nbsp;<br/>
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="LiuZeldes2019" class="entry"><td>
+	<ul><li class="autolist">Liu, Yang and Zeldes, Amir
+	(2019)
+	"Discourse Relations and Signaling Information: Anchoring Discourse Signals in RST-DT". In: <i>Proceedings of the Society for Computation in Linguistics (SCiL) 2019</i>.  New York, NY, 314&ndash;317. &nbsp;<br/>
+	[<a href="https://doi.org/10.7275/vh3w-4240">DOI</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="Zeldes2018rftok" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2018)
+	"A Characterwise Windowed Approach to Hebrew Morphological Segmentation". In: <i>Proceedings of the 15th SIGMORPHON Workshop on Computational Research in Phonetics, Phonology, and Morphology</i>. Brussels, Belgium, 101&ndash;110. &nbsp;<br/>
+	[<a href="http://aclweb.org/anthology/W18-5811">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="Zeldes2018AACL" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir
+	(2018)
+	"A Multi-Dimensional Analysis of RST Discourse Relations in Eight Genres". In: <i>14th American Association of Corpus Linguistics Conference (AACL 2018)</i>.  Atlanta, GA. &nbsp;<br/>
+	[<a href="pdf/AACL_2018_MD_RST.pdf">abstract</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="PengZeldes2018" class="entry"><td>
+	<ul><li class="autolist">Peng, Siyao and Zeldes, Amir
+	(2018)
+	"Validating and Merging a Growing Multilayer Corpus – the Case of GUM". In: <i>14th American Association of Corpus Linguistics Conference (AACL 2018)</i>.  Atlanta, GA. &nbsp;<br/>
+	[<a href="pdf/AACL2018_gum_abstract.pdf">abstract</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="ZeldesAbrams2018" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Abrams, Mitchell
+	(2018)
+	"The Coptic Universal Dependency Treebank". In: <i>Proceedings of the Universal Dependencies Workshop 2018</i>. Brussels, Belgium, 192&ndash;201. &nbsp;<br/>
+	[<a href="http://aclweb.org/anthology/W18-6022">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="PengZeldes2018udgum" class="entry"><td>
+	<ul><li class="autolist">Peng, Siyao and Zeldes, Amir 
+	(2018)
+	"All Roads Lead to UD: Converting Stanford and Penn Parses to English Universal Dependencies with Multilayer Annotations". In: <i>Proceedings of the Joint Workshop on Linguistic Annotation, Multiword Expressions and Constructions (LAW-MWE-CxG-2018) at COLING2018</i>. Santa Fe, NM, 167&ndash;177. &nbsp;<br/>
+	[<a href="http://aclweb.org/anthology/W18-4918">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="FederKupreyevManningEtAl2018" class="entry"><td>
+	<ul><li class="autolist">Feder, Frank, Kupreyev, Maxim, Manning, Emma, Schroeder, Caroline T. and Zeldes, Amir 
+	(2018)
+	"A Linked Coptic Dictionary Online". <i>Proceedings of LaTeCH 2018 - The 11th SIGHUM Workshop at COLING2018</i>. Santa Fe, NM, 12&ndash;21. &nbsp;<br/>
+	[<a href="http://aclweb.org/anthology/W18-4502">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="MiyagawaZeldesBuechlerEtAl2018" class="entry"><td>
+	<ul><li class="autolist">Miyagawa, So, Zeldes, Amir, B&uuml;chler, Marco, Behlmer, Heike and Griffitts, Troy
+	(2018)
+	"Building Linguistically and Intertextually-Tagged Coptic Corpora with Open Source Tools". <i>Proceedings of JADH2018</i>. Tokyo, Japan. &nbsp;<br/>
+	[<a href="pdf/MiyagawaEtAl2018.pdf">abstract</a>]
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="Zeldes2018crac" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2018)
+	"A Predictive Model for Notional Anaphora in English". <i>NAACL 2018 Workshop on Computational Models of Reference, Anaphora, and Coreference (CRAC)</i>. New Orleans, LA, 34&ndash;43. &nbsp;<br/>
+	[<a href="http://aclweb.org/anthology/W18-0704">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="MacAvaneyZeldes2018" class="entry"><td>
+	<ul><li class="autolist">MacAvaney, Sean and Zeldes, Amir 
+	(2018)
+	"A Deeper Look into Dependency-Based Word Embeddings". <i>NAACL 2018 Student Research Workshop</i>. New Orleans, LA, 40&ndash;45. &nbsp;<br/>
+	[<a href="http://aclweb.org/anthology/N18-4006">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="MiyagwaZeldes2018" class="entry"><td>
+	<ul><li class="autolist">Miyagawa, So and Zeldes, Amir 
+	(2018)
+	"A Semantic Map of the Coptic Complementizer &#269;e- based on Corpus Analysis: Grammaticalization and Areal Typology in Africa". <i>Semantic maps: Where do we stand and where are we going?</i> Li&egrave;ge, Belgium. &nbsp;<br/>
+	[<a href="pdf/MiyagawaZeldes2018.pdf">abstract</a>]
+	</li>
+</ul></td></tr>
+&nbsp;
+  <tr id="Zeldes2018gurt" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2018)
+	"A Neural Approach to Discourse Relation Signaling". <i>Georgetown University Round Table (GURT) 2018: Approaches to Discourse</i>. Georgetown University, Washington DC. &nbsp;<br/>
+	[<a href="pdf/neural_DR_abstract_GURT2018.pdf">abstract</a>] [<a href="pdf/RST_GURT2018_final.pdf">slides</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2017rst" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2017)
+	"A Distributional View of Discourse Encapsulation: Multifactorial Prediction of Coreference Density in RST". <i>6th Workshop on Recent Advances in RST and Related Formalisms at INLG</i>. Santiago de Compostela, Spain, 20&ndash;28. &nbsp;<br/>
+	[<a href="http://aclweb.org/anthology/W17-3603">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesZhang2017" class="entry"><td>
+	<ul><li class="autolist">Zhang, Shuo and Zeldes, Amir
+	(2017)
+	"GitDOX: A Linked Version Controlled Online XML Editor for Manuscript Transcription". In: <i>Proceedings of FLAIRS 2017, Special Track on Natural Language Processing of 
+Ancient and other Low-resource Languages</i>. Marco Island, FL, 619&ndash;623.&nbsp;<br/>
+	[<a href="pdf/GitDOX_A_Linked_Version_Controlled_Online_XML_Editor_prepub.pdf">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+<tr id="ZeldesSimonson2016" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Simonson, Dan
+	(2016)
+	"Different Flavors of GUM: Evaluating Genre and Sentence Type Effects on Multilayer Corpus Annotation Quality". In: <i>Proceedings of LAW X - The 10th Linguistic Annotation Workshop at the Annual Meeting of the ACL</i>. Berlin, 68&ndash;78.&nbsp;<br/>
+	[<a href="https://aclweb.org/anthology/W/W16/W16&ndash;1709.pdf">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+<tr id="ZeldesSchroeder2016" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Schroeder, Caroline T.
+	(2016)
+	"An NLP Pipeline for Coptic". In: <i>Proceedings of LaTeCH 2016 - The 10th SIGHUM Workshop at the Annual Meeting of the ACL</i>. Berlin, 146&ndash;155.&nbsp;<br/>
+	[<a href="https://aclanthology.org/W16-2119/">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+<tr id="Zeldes2016b" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir
+	(2016)
+	"rstWeb - A Browser-based Annotation Interface for Rhetorical Structure Theory and Discourse Relations". In: <i>Proceedings of NAACL-HLT 2016 System Demonstrations</i>. San Diego, CA, 1&ndash;5.&nbsp;<br/>
+	[<a href="http://aclweb.org/anthology/N/N16/N16&ndash;3001.pdf">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+<tr id="ZeldesZhang2016" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Zhang, Shuo
+	(2016)
+	"When Annotation Schemes Change Rules Help: A Configurable Approach to Coreference Resolution beyond OntoNotes". In: <i>Proceedings of the NAACL2016 Workshop on Coreference Resolution Beyond OntoNotes (CORBON)</i>. San Diego, CA, 92&ndash;101.&nbsp;<br/>
+	[<a href="http://aclweb.org/anthology/W/W16/W16&ndash;0713.pdf">paper</a>]&nbsp;
+	</li>
+</ul></td></tr>
+<tr id="Zeldes2016d" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir
+	(2016)
+	"A Quantitative Approach to Syntactic Alternations in Sahidic". In: <i>11th Congress of the International Association of Coptic Studies
+(IACS 2016)</i>. Claremont, CA.&nbsp;<br/>
+	</li>
+</ul></td></tr>
+<tr id="Zeldes2015" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2015)
+	"Duplicitous Diabolos: Parallel witness encoding in quantitative studies of Coptic manuscripts". In: <i>Proceedings of Balisage, Symposium on Cultural Heritage Markup</i>. (Balisage Series on Markup Technologies, vol. 16.) Washington, DC.&nbsp;<br/>
+	[<a href="http://www.balisage.net/Proceedings/vol16/print/Zeldes01/BalisageVol16-Zeldes01.html">link</a>]&nbsp;
+	</li>
+</ul></td></tr>
+ <tr id="Zeldes2015" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2015)
+	"Tagging the Desert Fathers: Part of Speech Analysis in Sahidic Coptic Corpora". In: <i>43rd Annual North American Conference on Afroasiatic Linguistics (NACAL2015), 13&ndash;15.2.2015</i>. Washington, DC.&nbsp;</li>
+</ul></td></tr>
+<tr id="Zeldes2014" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2014)
+	"German <i>voller</i> as a Productive Argument Structure <i>sui generis</i>". In: <i>36th Annual Meeting of the DGfS, Workshop on Problems of Syntactic Categorisation, 5&ndash;7.3.2014</i>. Marburg.&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="BoschEtAl2014" class="entry"><td>
+	<ul><li class="autolist">Bosch, Sonja, Eckart, Kerstin, Faaß, Gertrud, Heid, Ulrich, Lee, Kiyong, Pareja-Lora, Antonio, Pretorius, Laurette, Romary, Laurent, Witt, Andreas, Zeldes, Amir and Zipser, Florian
+	(2014)
+	"From &lt;tiger2&gt; to ISOTiger - Community Driven Developments for Syntax Annotation in SynAF". In: Henrich, Verena, Hinrichs, Erhard, de Kok, Daniël, Osenova, Petya and Przepiórkowski, Adam (eds.), <i>Proceedings of the Thirteenth International Workshop on Treebanks and Linguistic Theories (TLT13)</i>, 258&ndash;264.<br/>[<a href="pdf/tiger2_to_isotiger.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="HirschmannLuedelingRehbeinEtAl2012" class="entry"><td>
+	<ul><li class="autolist">Hirschmann, Hagen, L&uuml;deling, Anke, Rehbein, Ines, Reznicek, Marc and Zeldes, Amir 
+	(2013)
+	"Underuse of Syntactic Categories in Falko - A Case Study on Modification". In: Granger, Sylviane and Meunier, Fanny (eds.), <i>20 Years of Learner Corpus Research. Looking Back, Moving Ahead</i>. (Corpora and Language in Use.) Louvain: Presses universitaires de Louvain, 223&ndash;234.<br/>[<a href="http://www.hf.uio.no/ifikk/english/research/projects/proiel/ealc/abstracts/Krause_et_al.pdf">abstract</a>] [<a href="http://www.uclouvain.be/445428.html">publisher website</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="BoschEtAl2012" class="entry"><td>
+	<ul><li class="autolist">Bosch, Sonja, Choi, Key-Sun, de la Clergerie, Éric, Chengyu Fang, Alex, Faass, Gertrud, Lee, Kiyong, Pareja-Lora, Antonio, Romary, Laurent, Witt, Andreas, Zeldes, Amir and Zipser, Florian
+	(2012)
+	"&lt;tiger2&gt; as a standardised serialisation for ISO 24615 - SynAF". In: Hendrick, Iris,  Kübler, Sandra and Simov, Kiril (eds.), <i>TLT11 - 11th international workshop on Treebanks and Linguistic Theories</i>, 37–60.<br/>[<a href="pdf/BoschEtAl2012.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="KrauseLuedelingOdebrechtEtAl2012" class="entry"><td>
+	<ul><li class="autolist">Krause, Thomas, L&uuml;deling, Anke, Odebrecht, Carolin and Zeldes, Amir 
+	(2012)
+	"Multiple Tokenizations in a Diachronic Corpus". In: <i>Exploring Ancient Languages through Corpora</i>. Oslo.&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="KrauseRitzZeldesEtAl2011" class="entry"><td>
+	<ul><li class="autolist">Krause, Thomas, Ritz, Julia, Zeldes, Amir and Zipser, Florian 
+	(2011)
+	"Topological Fields, Constituents and Coreference: A New Multi-layer Architecture for T&uuml;Ba-D/Z". In: Hedeland, Hanna, Schmidt, Thomas and W&ouml;rner, Kai (eds.), <i>Multilingual Resources and Multilingual Applications. Proceedings of the Conference of the German Society for Computational Linguistics and Language Technology (GSCL) 2011</i>. (Working Papers in Multilingualism 96.) Hamburg: Universit&auml;t Hamburg, 259&ndash;262.&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2011" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2011)
+	"On the Productivity and Variability of the Slots in German Comparative Correlative Constructions". In: Konopka, Marek, Kubczak, Jacqueline, Mair, Christian, &#352;t&iacute;cha, Franti&#353;ek and Wa&szlig;ner, Ulrich H. (eds.), <i>Grammar &amp; Corpora, Third International Conference, Mannheim, 22.-24.09.2009</i>. T&uuml;bingen: Narr, 429&ndash;449.&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZipserZeldesRitzEtAl2011" class="entry"><td>
+	<ul><li class="autolist">Zipser, Florian, Zeldes, Amir, Ritz, Julia, Romary, Laurent and Leser, Ulf 
+	(2011)
+	"Pepper: Handling a Multiverse of Formats". In: <i>33. Jahrestagung der Deutschen Gesellschaft f&uuml;r Sprachwissenschaft</i>. G&ouml;ttingen: University of G&ouml;ttingen, 235.&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="LuedelingZeldesReznicekEtAl2010" class="entry"><td>
+	<ul><li class="autolist">L&uuml;deling, Anke, Zeldes, Amir, Reznicek, Marc, Rehbein, Ines and Hirschmann, Hagen 
+	(2010)
+	"Syntactic Misuse, Overuse and Underuse: A Study of a Parsed Learner Corpus and its Target Hypothesis". In: Dickinson, Markus, M&uuml;&uuml;risep, Kaili and Passarotti, Marco (eds.), <i>Proceedings of the Ninth International Workshop on Treebanks and Linguistic Theories</i>. (NEALT Proceedings Series 9.) University of Tartu, Estonia.<br/>[<a href="http://dspace.utlib.ee/dspace/bitstream/handle/10062/15928/ludeling.pdf">abstract</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ChiarcosFiedlerGrubicEtAl2009" class="entry"><td>
+	<ul><li class="autolist">Chiarcos, Christian, Fiedler, Ines, Grubic, Mira, Haida, Andreas, Hartmann, Katharina, Ritz, Julia, Schwarz, Anne, Zeldes, Amir and Zimmermann, Malte 
+	(2009)
+	"Information Structure in African Languages: Corpora and Tools". In: <i>Proceedings of the Workshop on Language Technologies for African Languages (AFLAT), 12th Conference of the European Chapter of the Association for Computational Linguistics (EACL-09)</i>. Athens, Greece, 17&ndash;24.<br/>[<a href="http://aclweb.org/anthology-new/W/W09/W09&ndash;0703.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2009" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2009)
+	"Quantifying Constructional Productivity with Unseen Slot Members". In: <i>Proceedings of the NAACL HLT Workshop on Computational Approaches to Linguistic Creativity, June 5, Boulder CO</i>. Stroudsburg, PA: Association for Computational Linguistics, 47&ndash;54.<br/>[<a href="http://aclweb.org/anthology-new/W/W09/W09&ndash;2007.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesRitzLudelingEtAl2009" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir, Ritz, Julia, L&uuml;deling, Anke and Chiarcos, Christian 
+	(2009)
+	"ANNIS: A Search Tool for Multi-Layer Annotated Corpora". In: <i>Proceedings of Corpus Linguistics 2009</i>. Liverpool, UK.<br/>[<a href="pdf/CL2009_ANNIS_pre.pdf">prepub version</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesLuedelingHirschmann2008" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir, L&uuml;deling, Anke and Hirschmann, Hagen 
+	(2008)
+	"What's Hard? Quantitative Evidence for Difficult Constructions in German Learner Data". In: Arppe, Antti, Sinnem&auml;ki, Kaius and Nikanne, Urpo (eds.), <i>Proceedings of Quantitative Investigations in Theoretical Linguistics 3 (QITL-3)</i>. Helsinki, 74&ndash;77.<br/>[<a href="pdf/Zeldes_et_al_QITL3.pdf">prepub version</a>] [<a href="http://www.ling.helsinki.fi/sky/tapahtumat/qitl/Presentations/Zeldes_et_al.ppt">slides</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2007b" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2007)
+	"Machine Translation between Language Stages: Extracting Historical Grammar from a Parallel Diachronic Corpus of Polish". In: <i>Proceedings of Corpus Linguistics 2007</i>. Birmingham: University of Birmingham.<br/>[<a href="http://www.birmingham.ac.uk/documents/college-artslaw/corpus/conference-archives/2007/60paper.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2006" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2006)
+	"Abstracting Suffixes: A Morphophonemic Approach to Polish Morphological Analysis". In: <i>Proceedings of KONVENS'06</i>. Konstanz: University of Konstanz, 151&ndash;158.<br/>[<a href="pdf/Abstracting_Suffixes_KONVENS06.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+ <tr class="Misc pubtype"><td class="Misc pubtype">&nbsp;</td></tr>&nbsp;
+<tr id="KrauseWeissenfelsZeldesEtAl2014" class="entry"><td>
+	<ul><li class="autolist">Krause, Thomas, Wei&szlig;enfels, Benjamin, Zeldes, Amir and Zipser, Florian 
+	(2014)
+	"ANNIS3: Towards Generic Corpus Search and Visualization". 36th Annual Meeting of the DGfS, Poster Session of the SIG on Computational Linguistics. Marburg, 409&ndash;410.<br/>[<a href="https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/mitarbeiter-innen/amir/pdf/dgfs2014_annis_poster.pdf">poster</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2012" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2012)
+	"Novel Argument Realization: Semantic, Pragmatic and Conventional Productivity Effects". Proceedings of Linguistic Evidence 2012. Empirical, Theoretical and Computational Perspectives. T&uuml;bingen, 327-331 (Voted best poster for the poster session on 10 February 2012).<br/>[<a href="pdf/LingEv2012_Abstract_Zeldes.pdf">abstract</a>] [<a href="pdf/LingEv2012_Poster_Zeldes.pdf">poster</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="GaetaZeldes2011" class="entry"><td>
+	<ul><li class="autolist">Gaeta, Livio and Zeldes, Amir 
+	(2011)
+	"German Synthetic Compounds and the Architecture of the Grammar: A Behavioral Analysis". Mediterranean Morphology Meeting 8, 14-17 September 2011, Cagliari.<br/>[<a href="pdf/MMM8_Poster.pdf">poster</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="KrauseRitzZeldesEtAl2011a" class="entry"><td>
+	<ul><li class="autolist">Krause, Thomas, Ritz, Julia, Zeldes, Amir and Zipser, Florian 
+	(2011)
+	"Topological Fields, Constituents and Coreference: A New Multi-layer Architecture for T&uuml;Ba-D/Z". Conference of the German Society for Computational Linguistics and Language Technology (GSCL) 2011. Hamburg.<br/>[<a href="pdf/GSCL2011_Poster.pdf">poster</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ReznicekKrummesHirschmannEtAl2010" class="entry"><td>
+	<ul><li class="autolist">Reznicek, Marc, Krummes, Cedric, Hirschmann, Hagen, L&uuml;deling, Anke, Ensslin, Astrid, Chan, Jia W., Zeldes, Amir, Krause, Thomas and Zipser, Florian 
+	(2010)
+	"'Dass wenn man etwas will, muss man daf&uuml;r arbeiten'- Zielhypothesen im Lernerkorpus Falko". 31. Jahrestagung der Deutschen Gesellschaft f&uuml;r Sprachwissenschaft, Berlin, 25 February 2010.<br/>[<a href="pdf/Reznicek_et_al.pdf">poster</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2010" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2010)
+	"Novel Argument Selection: Is Lexical Semantics Enough?". Doktorandentag 2010, Humboldt-Universit&auml;t zu Berlin.<br/>[<a href="pdf/Novel Argument Selection.pdf">poster</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ChiarcosKrauseLuedelingEtAl2009" class="entry"><td>
+	<ul><li class="autolist">Chiarcos, Christian, Krause, Thomas, L&uuml;deling, Anke, Ritz, Julia, Rosenfeld, Viktor, Stede, Manfred, Zeldes, Amir and Zipser, Florian 
+	(2009)
+	"Search and Visualization of Richly Annotated Corpora with ANNIS2". In: <i>31. Jahrestagung der Deutschen Gesellschaft f&uuml;r Sprachwissenschaft, Sektion CL</i>. Osnabr&uuml;ck: University of Osnabr&uuml;ck, 265.<br/>[<a href="pdf/DGfS2009_annis_abstract.pdf">abstract</a>] [<a href="pdf/DGfS2009_annis_poster.pdf">poster</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2009a" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2009)
+	"Applying Morphological Productivity Measures to Syntactic Constructions: German Comparatives and the <i>je ... desto</i> Constructions". Doktorandentag 2009, Humboldt-Universit&auml;t zu Berlin.<br/>[<a href="pdf/DocDay2009_poster.pdf">poster</a>]&nbsp;</li>
+</ul></td></tr>
+ <tr class="TechReport pubtype"><td class="TechReport pubtype">&nbsp;</td></tr>&nbsp;
+<tr id="ZeldesMartin2020" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Martin, Lance
+	(2020)
+	<i>Coptic Scriptorium – Entity Annotation Guidelines</i>. Version 1.1.0-2020-07&ndash;20. Technical Report, Georgetown University.<br/>[<a href="https://github.com/CopticScriptorium/entity-tagging/blob/master/coptic_scriptorium_entity_guidelines.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesUDCop2016" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2016)
+	<i>Coptic Universal Dependency Guidelines</i>. Version 1.1.0-2016-10&ndash;19. Technical Report, Georgetown University.<br/>[<a href="https://github.com/CopticScriptorium/corpora/raw/master/coptic-treebank/Coptic_universal_dependencies_guidelines.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesSchroeder2013" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Schroeder, Caroline 
+	(2016)
+	<i>SCRIPTORIUM Part-of-Speech Tagsets for Sahidic Coptic</i>. Version: 1.1.7_2016.03.14. Technical Report, Georgetown University and University of the Pacific.<br/>[<a href="https://github.com/CopticScriptorium/tagger-part-of-speech/raw/master/scriptorium_tagset_documentation.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesZipserNeumann2013" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir, Zipser, Florian and Neumann, Arne 
+	(2013)
+	<i>PAULA XML Documentation: Format Version 1.1</i>. Technical report, Humboldt-Universit&auml; zu Berlin and Universit&auml;t Potsdam.<br/>[<a href="http://hal.archives-ouvertes.fr/docs/00/78/37/16/PDF/PAULA_P1.1.2013.1.21a.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+ <tr class="Proceedings pubtype"><td class="Proceedings pubtype">&nbsp;</td></tr>&nbsp;
+<tr id="ZeldesEtAl2021_DISRPT_PROC" class="entry"><td>
+	<ul><li class="autolist Proceedings">Zeldes, Zeldes, Liu, Yang Janet, Iruskieta, Mikel, Muller, Philippe, Braud, Chloé and Badene, Sonia (eds.)
+	(2021)
+	<i>Proceedings of the 2nd Shared Task on Discourse Relation Parsing and Treebanking (DISRPT 2021)</i>.  Collocated with EMNLP 2021, 11 November 2021, Punta Cana, Dominican Republic.&nbsp;<br/>
+	[<a href="https://aclanthology.org/2021.disrpt-1.0/">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="DipperZeldes2020" class="entry"><td>
+	<ul><li class="autolist Proceedings">Dipper, Stefanie and Zeldes, Amir (eds.)
+	(2020)
+	<i>Proceedings of the 14th Linguistic Annotation Workshop (The LAW XIV)</i>.  Collocated with COLING 2020, 12 December 2020, Barcelona, Spain.&nbsp;<br/>[<a href="https://www.aclweb.org/anthology/volumes/2020.law-1/">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesDasEtAl2019" class="entry"><td>
+	<ul><li class="autolist Proceedings">Zeldes, Amir, Das, Debopam, Galani, Erick Maziero, Antonio, Juliano Desiderato and Iruskieta, Mikel (eds.)
+	(2019)
+	<i>Proceedings of Discourse Relation Treebanking and Parsing (DISRPT 2019)</i>.  Collocated with NAACL 2019, 6 June 2019, Minneapolis, MN.&nbsp;<br/>[<a href="https://www.aclweb.org/anthology/volumes/W19-27/">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesLuedeling2011" class="entry"><td>
+	<ul><li class="autolist Proceedings">Zeldes, Amir and L&uuml;deling, Anke (eds.)
+	(2011)
+	<i>Proceedings of Quantitative Investigations in Theoretical Linguistics 4 (QITL-4)</i>.  29-31 March 2011, Humboldt-Universit&auml;t zu Berlin.&nbsp;<br/>[<a href="http://korpling.german.hu-berlin.de/qitl4/QITL4_Proceedings.pdf">link</a>]&nbsp;</li>
+</ul></td></tr>
+ <tr class="Electronic pubtype"><td class="Electronic pubtype">&nbsp;</td></tr>&nbsp;
+<tr id="Zeldestoappeara" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2014)
+	"Review of: Schmidt, Thomas &amp; W&ouml;rner, Kai, 'Multilingual Corpora and Multilingual Corpus Analysis'". <i>Languages in Contrast</i> 14(2), 317&ndash;321.&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2010a" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2010)
+	"Review of: McEnery, Tony, Xiao, Richard &amp; Tono, Yukio, 'Corpus-Based Language Studies: An Advanced Resource Book'". <i>Zeitschrift f&uuml;r Rezensionen zur germanistischen Sprachwissenschaft</i> 2(2), 268&ndash;274.&nbsp;</li>
+</ul></td></tr>
+ <tr class="Conference pubtype"><td class="Conference pubtype">&nbsp;</td></tr>&nbsp;
+ <tr id="ZeldesMartin2020" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Martin, Lance
+	(forthcoming)
+	"Consolidating a Linked Digital Environment for Work with Coptic Texts". <i><a href="http://dev.ulb.ac.be/philo/lla/IACS_Congress_ENGL.html">12th International Congress of Coptic Studies</a></i>. Brussels, Belgium</li>
+</ul></td></tr>
+&nbsp;
+<tr id="SlaughterEtAl2020" class="entry"><td>
+	<ul><li class="autolist">Slaughter, Laura, Miyagawa, So, Morgado da Costa, Luis, Zeldes, Amir, Behlmer, Heike and Lundhaug, Hugo
+	(forthcoming)
+	"Evaluation of the Coptic Wordnet". <i><a href="http://dev.ulb.ac.be/philo/lla/IACS_Congress_ENGL.html">12th International Congress of Coptic Studies</a></i>. Brussels, Belgium.</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesHowell2022" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Howell, Nick
+	(2022)
+	"IAHLT NLP Innovations for Hebrew and Arabic". <i>AI Data Science Summit 2022</i>, College of Management, Rishon LeTsiyon, Israel, 10 May 2022.&nbsp;<br/></li>
+</ul></td></tr>
+&nbsp; 
+<tr id="Zeldes2022_Pitt" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir
+	(2022)
+	"Multilayer and Multi-Genre Models of Discourse. Data and Insights beyond the Sentence Level". Invited talk at <i>Pittsburgh University NLP Seminar</i>, 5 March 2022.&nbsp;<br/>
+</ul></td></tr>
+&nbsp; 
+<tr id="Zeldes2022_IAHLT" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir
+	(2022)
+	"Multilayer and multi-genre annotation of natural languages: Recent advances and applications". Invited talk at <i>IAHLT Achievements and Innovations</i>, Online, 3 January 2022.&nbsp;<br/>
+</ul></td></tr>
+&nbsp; 
+<tr id="Zeldes2021_KUDH" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir
+	(2021)
+	"UD Treebanking for Coptic DH. Low Resource NLP Technologies for NER, Lexicography and Linked Open Data". Invited talk at <i>Digital Transformation in the Humanities</i>, KUDH International Conference, Kyoto University, 2 October 2021.&nbsp;<br/>
+	[<a href="https://youtu.be/YGaAqlHMZ3M?t=415">talk</a>]</li>
+</ul></td></tr>
+&nbsp; 
+<tr id="Zeldes2021_IAHLT_NLP" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir, Schroeder, Caroline T. and Martin, Lance
+	(2021)
+	"Leveraging Non-Named Entities in Coptic antiquity". <i>Digital Classicist Seminar 2021</i>, online, 10 September 2021.&nbsp;<br/>
+	[<a href="https://www.youtube.com/watch?v=Web8vaAbx-M">talk</a>]</li>
+</ul></td></tr>
+&nbsp; 
+<tr id="Zeldes2021_Dagstuhl" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir
+	(2021)
+	"Issues in UD Consistency, Phrases, and Semantics". <i>Dagstuhl Seminar 21351, Universals of Linguistic Idiosyncrasy in Multilingual Computational Linguistics </i>. Online, 30&ndash;31 August 2021.</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2021_IAHLT_NLP" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir
+	(2021)
+	"A Second Wave of Gold Standard Hebrew Treebanks". <i>AI Data Science Summit 2021</i>, Amdocs Raanana, Israel, 3 August 2021.&nbsp;<br/>
+	[<a href="https://he.iahlt.org/htb">talk</a>]</li>
+</ul></td></tr>
+&nbsp; 
+<tr id="MartinEtAl2021" class="entry"><td>
+	<ul><li class="autolist">Martin, Lance, Schroeder, Caroline T. and Zeldes, Amir
+	(2021)
+	"Digitally Linking People and Places in Coptic Literature". <i>St. Shenouda Foundation Annual Conference 2021</i>, UCLA, 16 July 2021.</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2021_IAHLT_TB" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir
+	(2021)
+	"IAHLT Treebanking &amp; NLP &ndash; Progress report". <i>IAHLT Meeting,</i> Israeli Association of Human Language Technology. Online, 6 June 2021.</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2021_UA" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir and Peng, Siyao
+	(2021)
+	"Universal Anaphora - Collapsed format data tests and tricky coreference guidelines". <i><a href="https://sites.google.com/view/universalanaphora-2021-april/schedule">Universal Anaphora Meeting</a></i>. Online, 9 April 2021.</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2021_GUITAR" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2021)
+	"Building Blocks for Discourse Models". <i>Georgetown University Interdisciplinary Text Analysis Research (GUITAR)</i> at the <a href="https://mccourt.georgetown.edu/research/the-massive-data-institute/">Massive Data Institute</a> (10 February 2021).</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2020_UA" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2020)
+	"Coreference at Georgetown: GUM, ANNIS, and Amalgum". In: <i>Invited panel on <a href="https://universaldependencies.org/">Universal Anaphora</a></i>, at <a href="https://sites.google.com/view/crac2020">CRAC 2020</a> (12 December 2020).</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2020_DALI" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2020)
+	"Multilayer GUM &ndash; Computational Discourse Models in the CL Classroom". Invited talk at the <i><a href="http://dali.eecs.qmul.ac.uk/seminars">DALI Seminar</a></i>, Queen Mary University London (10 November 2020).</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2020_UCM" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2020)
+	"Chewing GUM: On Constructing Multilayer Corpora in the Linguistics Classroom". Invited talk at <i><a href="https://eventos.ucm.es/54526/detail/working-with-corpora-and-digital-tools-in-language-and-translation-studies_-practical-issues-and-me.html">WocDit 2020</a>, International Seminar Working with Corpora and Digital Tools in Language and Translation Studies: Practical Issues and Methodological Challenges</i>. Universidad Complutense Madrid (UCM) (27 October 2020).</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="ZeldesSchroederMartin2020" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir, Schroeder, Caroline T. and Martin, Lance
+	(2020)
+	"Exposing Coptic entities: automation, search and visualization". <i><a href="http://kellia.uni-goettingen.de/digitalcoptic3/">Digital Coptic 3</a></i>. &nbsp;<br/>
+	[<a href="https://www.youtube.com/watch?v=QWAZWLczNEY&t=1h50m20s">talk</a>] [<a href="http://kellia.uni-goettingen.de/digitalcoptic3/slides/DC3_entities_2020.pdf">slides</a>]</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="SlaughterEtAlDC2020" class="entry"><td>
+	<ul><li class="autolist">Slaughter, Laura, Miyagawa, So, Morgado da Costa, Luis, Zeldes, Amir, Behlmer, Heike and Lundhaug, Hugo
+	(2020)
+	"An Overview of the Coptic Wordnet Project". <i><a href="http://kellia.uni-goettingen.de/digitalcoptic3/">Digital Coptic 3</a></i>. &nbsp;<br/>
+	[<a href="https://www.youtube.com/watch?v=PhQUTHW9jp8&t=30m58s">talk</a>] [<a href="http://kellia.uni-goettingen.de/digitalcoptic3/slides/Coptic%20WN%20-%20July%202020.pdf">slides</a>]</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2019_dcnlp" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2019)
+	"Discourse Structure and Crystal Balls in NLP". Invited talk at <i><a href="https://www.meetup.com/DC-NLP/">DC NLP</a></i>. Washington, DC (14 November 2019)</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2019_crac" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2019)
+	"Coreference and Coherence Revisited". Invited talk at <i><a href="https://sites.google.com/view/crac2019/">CRAC 2019</a></i>, Second Workshop on Computational Models of Reference, Anaphora and Coreference, co-located with NAACL 2019. Minneapolis, MN (7 June 2019)</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2018_utaustin" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2018)
+	"Referentiality and Genre in Computational Discourse Models". Invited talk at the <i><a href="https://liberalarts.utexas.edu/lrc/">Linguistics Research Center</a></i>. UT Austin, Texas (30 November 2018)</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="CS2018" class="entry"><td>
+	<ul><li class="autolist">Krawiec, Rebecca, Luckritz-Marquis, Christine, Platte, Elizabeth, Schroeder, Caroline T. and Zeldes, Amir 
+	(2018)
+	"A Linked Digital Environment for Coptic Studies". Invited talk at the <i><a href="https://guevents.georgetown.edu/event/linguistics_speaker_series_coptic_scriptorium_a_linked_digital_environment_for_coptic_studies#.XBO63WhKhjg">Friday Speaker Series</a></i>. Georgetown University, Washington DC (14 September 2018)</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2018_jhu_rst" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2018)
+	"Feature Rich Models for Discourse Signaling". Invited talk at the <i><a href="https://www.clsp.jhu.edu/events/amir-zeldes-georgetown-university/">Center for Language and Speech Processing
+</a></i>. Baltimore, Johns Hopkins University (23 February 2018)<br/>
+	[<a href="pdf/RST_JHU2018.pdf">slides</a>] [<a href="https://jh.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=4b37fa51-673c-42d0-8bf1-a8900119965f">video</a>]
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2017_cmu_rst" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2017)
+	"A Multilayer View of Discourse Relation Graphs". Invited talk at the <i><a href="https://sites.grenadine.co/sites/cmu-scs-lti/en/colloquium/schedule/417/LTI+Special+Talk%3A+Amir+Zeldes+%22A+Multilayer+View+of+Discourse+Relation+Graphs%22">CMU Language Technologies Institute Colloquium
+</a></i>. Pittsburgh, Carnegie Mellon University (10 November 2017)<br/>
+	[<a href="pdf/RST_CMU2017.pdf">slides</a>]
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2017_notional" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2017)
+	"Predicting Notional Agreement in Anaphora Resolution". Invited talk at the <i><a href="http://www.geisteswissenschaften.fu-berlin.de/v/koepfigkeit/Beschreibung/index.html">Workshop on Headedness and/or Grammatical Anarchy</a></i>. Berlin, Free University (11 May 2017)
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2016kellia_nlp" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2016)
+	"Status and New Developments in NLP for Coptic". KELLIA Workshop, Claremont Graduate University (23 July 2016).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2015leip_treebank" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2015)
+	"Applying Universal Dependencies to Coptic: First Tests and Some Applications for Entity Recognition". <a href="http://www.dh.uni-leipzig.de/wo/?wpdmdl=4438">Treebanking Ancient Languages: Current and Prospective Research</a>, Leipzig University (14 December 2015).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2015digicop_gu" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2015)
+	"Digital Coptic. What, Why and How?". <a href="https://guevents.georgetown.edu/event/linguistics_speaker_series_amir_zeldes_georgetown_university#.VmcHu7igllE">Friday Speaker Series</a>, Georgetown University (18 September 2015).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2015clip" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2015)
+	"Developing and Using Multilayer Corpora".  Computational Linguistics and Information Processing (CLIP) Talks, University of Maryland, College Park, MD (11 March 2015).<br/>
+	[<a href="https://talks.cs.umd.edu/talks/846">abstract</a>]
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2014d" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2014)
+	"Corpus Architectures for Multilingual Studies".  	<a href="https://sites.google.com/site/imsgeorgetown/events-2/advanced-research-in-multilingualism-talk-series">Advanced Research in Multilingualism Talk Series</a> (19 November 2014).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2014c" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2014)
+	"Compounding in Advanced L2 German Writing - A Corpus Study".  	Georgetown Linguistics Friday Speaker Series (12 September 2014).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+ <tr id="Zeldes2014d" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2014)
+	"Productivity and Grammar". Key note address at <i>Grammar and Corpora 2014</i>, University of Warsaw (26 June 2014).<br/>
+	[<a href="pdf/GAC2014.pdf">slides</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="SchroederZeldes2014" class="entry"><td>
+	<ul><li class="autolist">Schroeder, Caroline and Zeldes, Amir 
+	(2014)
+	"Digital Coptic. Building an Online Environment for the Study of Coptic Literature".  	UC Berkeley, Center for Tebtunis Papyri (15 May 2014).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2014a" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2014)
+	"Mehrebenenkorpora in ANNIS, PAULA und SaltNPepper".  	Invited talk at Neofonie GmbH, Berlin (20 May 2014).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2014b" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2014)
+	"Towards Digital Coptic: Searching and Visualizing Coptic Manuscript Data". Talk at the Berlin Digital Classicist Seminar (14 January 2014).<br/>
+	[<a href="http://hdl.handle.net/11858/00-1780-0000-0022-D54A-7">link with video</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="KrauseOdebrechtZeldesEtAl2013" class="entry"><td>
+	<ul><li class="autolist">Krause, Thomas, Odebrecht, Carolin, Zeldes, Amir and Zipser, Florian 
+	(2013)
+	"Unary TEI Elements and the Token Based Corpus".  	Workshop Perspectives on Querying TEI-annotated data, TEI Conference 2013, Rome, 1 October 2013.<br/>
+	[<a href="http://digilab2.let.uniroma1.it/teiconf2013/wp-content/uploads/2013/09/Krause_etal.pdf">abstract</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="NeumannZeldesZipser2013" class="entry"><td>
+	<ul><li class="autolist">Neumann, Arne, Zeldes, Amir and Zipser, Florian 
+	(2013)
+	"ANNIS 3: Challenges and Innovations for Corpora in SFB632".  	17th Internal Workshop of the SFB 632 / Information Structure, Lutherstadt Wittenberg, 13 June 2013.<br/>
+	[<a href="pdf/ANNIS3_SFB_Wittenberg2013.pdf">slides</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2013d" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2013)
+	"Corpus Linguistics Tools for Sahidic Coptic".  	Talk at the Leipzig eHumanities Seminar (18 December 2013).<br/>
+	[<a href="http://www.e-humanities.net/assets/seminar/2013/drafts/2013-eHumSem-GER-Zeldes-Amir-CorpusLinguisticsToolsForSahidicCoptic.pdf">abstract</a>] [<a href="https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/mitarbeiter-innen/amir/pdf/leipzig_eh2013.pdf">slides</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2013e" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2013)
+	"Viel mehr als eine Liste: Was uns Lernerdaten &uuml;ber das mentale Lexikon als produktives Netzwerk zeigen [=Much more than a list: What learner data tells us about the mental lexicon as a productive network]".  	Invited talk at the Interdisciplinary Centre for Research on Lexicography, Valency and Collocation at FAU Erlangen-Nuremberg (29 October 2013).<br/>
+	[<a href="http://www.lexi.uni-erlangen.de/de/veranstaltungen.html#ws13">link</a>n]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2013f" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2013)
+	"The State of the Art in Collaborative Multilayer Historical Treebanks of German".  	Invited talk at the Workshop on Syntactic Change and Information Structure, University of Manchester (13 April 2013).<br/>
+	[<a href="http://manling.wordpress.com/2013/03/17/workshop-on-syntactic-change-and-information-structure/">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2013g" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2013)
+	"Zur Wortart und Kasusrektion des Wortes voller [=On the part-of-speech and case government of the word voller]".  	Research Colloquium Corpus Linguistics, HU Berlin (12 Febuary 2013).<br/>
+	[<a href="http://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/lehre/ws_1213/ko_5220013_dateien/voller_foko">slides</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2012a" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2012)
+	"New Developments in Multilayer Corpora for Information Structure".  	15th Internal Workshop of the SFB 632, Wandlitz (8 June 2012).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2012qp" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2012)
+	"Compounding as a Network of Constructions in Advanced Learner German".  	Università degli Studi di Napoli Federico II (17 May 2012).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2012q" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2012)
+	"Productivity in Argument Selection".  	Università degli Studi di Napoli Federico II (16 May 2012).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2012b" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2012)
+	"Komposition als Konstruktionsnetzwerk in L2-Deutsch. &Uuml;ber Lebensblatt, Frauenbedruck, Lehrerkrankenversicherungsamt und andere FALKOmposita".  	2nd Kobalt Network Meeting, HU Berlin (1 March 2012).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2012c" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2012)
+	"Productivity in Argument Selection: Extensibility Effects of Semantic Classes in Usage".  	Talk at the Seminar f&uuml;r Englische Philologie, Georg-August-Universit&auml;t G&ouml;ttingen (17 January 2012).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2011a" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2011)
+	"Getan - gesagt? Pragmatische und lexikalisierte Erkl&auml;rungen zur Besetzung von Argumentstellen mit neuem Material".  	IZ Colloquium Europ&auml;ische Sprachen, Freie Universit&auml;t Berlin (10 May 2011).<br/>
+	[<a href="pdf/Getan - gesagt.pdf">slides</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="KrummesReznicekJiaEtAl2010" class="entry"><td>
+	<ul><li class="autolist">Krummes, Cedric, Reznicek, Marc, Jia Wei, Chan, Hirschmann, Hagen, Krause, Thomas, Zeldes, Amir, Astrid, Ensslin and L&uuml;deling, Anke 
+	(2010)
+	"'What's Hard in German?': Touching the Void of Over- and Underuse".  	Paper given at the Forum for Germanic Language Studies, Gregynog/Aberystwyth (8-9 January 2010).<br/>
+	[<a href="http://www.bangor.ac.uk/creative_industries/documents/whig_gregynog.pdf">slides</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2010b" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2010)
+	"Mehrebenenkorpora in ANNIS. Datenrepr&auml;sentation, Abfrage und Visualisierung".  	Computerlinguistik-Kolloquium, Universit&auml;t Z&uuml;rich, Institut f&uuml;r Computerlinguistik (18 May 2010).<br/>
+	[<a href="http://www.cl.uzh.ch/news/mehrebenenkorpora-ANNIS-pres.html">link</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2010c" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2010)
+	"ANNIS, PAULA &amp; SaltNPepper. Open Source Resources for Multilayer Corpora".  	Service-oriented Architectures for Language Technology, Universit&auml;t T&uuml;bingen (11 February 2010).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="HirschmannZeldesLuedeling2009" class="entry"><td>
+	<ul><li class="autolist">Hirschmann, Hagen, Zeldes, Amir and L&uuml;deling, Anke 
+	(2009)
+	"Interaction between Colligation, Register and Surface Variability in German Learners and Natives".  	31. Jahrestagung der Deutschen Gesellschaft f&uuml;r Sprachwissenschaft. Osnabr&uuml;ck, Germany (4-6 March 2009).<br/>
+	[<a href="pdf/DGfS09 Abstract.pdf">abstract</a>] [<a href="pdf/Colligation Register Variability_final.pdf">slides</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="ZeldesHirschmannLuedeling2009" class="entry"><td>
+	<ul><li class="autolist">Hirschmann, Hagen, Zeldes, Amir and L&uuml;deling, Anke 
+	(2009)
+	"Multilevel Learner Corpora".  	Workshop on Automatic Analysis of Learner Language 2009 (AALL'09), CALICO '09. Arizona State University (10-14 March 2009).<br/>
+	[<a href="pdf/MultilevelLearnerCorpora-Abstract-AALL09.pdf">abstract</a>] [<a href="http://www.sfs.uni-tuebingen.de/~dm/events/aall09/hirschmann-et-al.pdf">slides</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2009b" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2009)
+	"Multi-Layer Resources in ANNIS: Historical Corpora and Information Structural Annotation".  	Workshop Annotating and Analysing Information Structure in Historical Corpus Texts, HU Berlin (13 November 2009).<br/>
+	[<a href="http://www.hf.uio.no/ifikk/english/research/projects/proiel/Activities/proiel/events/is_presentations/Historical%20IS%20-%20ANNIS.pdf">slides</a>]&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2009c" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2009)
+	"Variabilit&auml;t in der Produktivit&auml;t von je-desto-Konstruktionen".  	Invited talk at the Lecture Series on Variability and Invariability in Language, Potsdam University (25 June 2009).
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2006a" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2006)
+	"Design and Applications of Polimatth - a Small Parallel Diachronic Bible Corpus of Polish".  	Lecture at Dagstuhl seminar 06491 Digital Historical Corpora. International Conference and Research Center for Computer Science, Schloss Dagstuhl, Wadern, Germany.
+	&nbsp;</li>
+</ul></td></tr>
+&nbsp;
+<tr id="Zeldes2006b" class="entry"><td>
+	<ul><li class="autolist">Zeldes, Amir 
+	(2006)
+	"Verb Formation in Biblical and Modern Hebrew: Continuity and Innovation".  	International Conference Morphology and the Digital World, Freie Universit&auml;t, Berlin.
+	&nbsp;</li>
+</ul></td></tr>
+</table>
+</div>
+<footer>
+ <small>Created by <a href="http://jabref.sourceforge.net">JabRef</a> on 2022-05-13.</small>
+</footer>
+</section>
+</div></div>
+<!-- file generated by JabRef -->
+<div id="sidebar">
+						<div class="inner">
+
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Menu</h2>
+									</header>
+<ul>
+    <li class="home"><a href="index.html">Home</a></li>
+    <li class="publications"><a href="publications.html">Publications</a></li>
+    <li class="teaching"><a href="teaching.html">Teaching</a></li>
+    <li class="download"><a href="download.html">Downloads</a></li>
+    <li class="misc"><a href="misc.html">Misc</a></li>
+    <li><a class="icon fa-external-link-square" href="../corpling"> Corpling@GU</a></li>
+</ul>
+									
+									
+								</nav>
+								<footer id="footer">
+									<p class="copyright">&copy; Amir Zeldes. All rights reserved. <br/>Design adapted from: <a href="https://html5up.net">HTML5 UP</a>.</p>
+								</footer>
+
+</div>
+</div>
+
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="assets/js/main.js"></script>
+
+</body>
+</html>

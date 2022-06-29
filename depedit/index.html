@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>DepEdit - a tool for manipulating dependency trees</title>
+	<link rel="stylesheet" href="css/depedit.css" type="text/css" charset="utf-8"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/font-awesome-4.2.0/css/font-awesome.min.css"/>	
+
+</head>
+
+<body id="home">
+
+<div class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          
+          <a href="http://corpling.uis.georgetown.edu/depedit/" class="navbar-brand">Depedit</a>
+          <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+
+          </button>
+        </div>
+        <div class="navbar-collapse collapse" id="navbar-main">
+          <ul class="nav navbar-nav">
+            <li>
+              <a href="https://github.com/amir-zeldes/DepEdit">Download</a>
+            </li>
+            <li>
+              <a href="https://github.com/amir-zeldes/DepEdit/raw/master/docs/DepEdit_user_guide.pdf">Documentation</a>
+            </li>
+          </ul>
+			<ul class="nav navbar-nav navbar-right">
+            <li><a href="http://corpling.uis.georgetown.edu/corpling/">corpling@GU</a></li>
+          </ul>		
+
+
+        </div>
+      </div>
+    </div>
+
+
+<div class="container">
+
+<div class="page-header" id="banner">
+<div class="row">
+<div class="col-lg-8">
+<h1>DepEdit</h1>
+<p class="lead">
+A simple configurable tool for manipulating dependency trees
+</p>
+<hr/>
+<img src="img/depedit.png" alt="auto-edit dependency trees" width="500px"/>
+<h2>Overview</h2>
+<p>
+DepEdit reads and writes files encoded in the <b>CoNLL dependency format</b> (10 columns). It's a simple Python script which can:
+</p>
+<ul class="content">
+<li>Change token attributes: 
+<ul>
+<li>token text</li>
+<li>part of speech</li>
+<li>dependency function</li>
+<li>other columns (typically used for lemma, morphology)</li>
+</ul>
+</li>
+<li>Connect different tokens in the tree by setting their head feature</li>
+<li>Base its decisions on dependency sub-graphs or token distance</li>
+<li>Use external configuration files for different scenarios</li>
+<li>No language or schema specific details are hardwired into the system</li>
+</ul>
+<p>You can also import it into your projects as a preprocessing module.</p>
+<br>
+<p><b>For detailed instructions please see the <a href="https://github.com/amir-zeldes/DepEdit/raw/master/docs/DepEdit_user_guide.pdf">User Guide</a></b></p>
+<br>
+<h2>What is it good for?</h2>
+<p>Here are some example scenarios in which DepEdit can be helpful:</p>
+<ul class="content">
+<li>You want to encode 'want to..' as an auxiliary, but your corpus has it as a main verb</li>
+<li>An NLP component you use expects a slightly different tree</li>
+<li>You discover your annotators treated a fixed expression like 'the world *over*' inconsistently</li>
+<li>There is no parser for the language you are annotating, but you want to annotate some trivial cases automatically</li>
+<li>The latest parser has a new schema, but your old data is in an older schema with subtle differences</li>
+<li>You need to build a very rudimentary rule based parser (not exactly recommended, but somewhat possible)</li>
+</ul>
+
+<h2>How can I use it?</h2>
+<p>
+DepEdit is a self-contained Python script that is compatible with Python 2.X and 3.X and only needs a configuration file to run. 
+<p>
+You can download the script itself (just depedit.py, without installing), or optionally install it via <tt>pip</tt> and run it as a module in your project (see below). Command line usage is either file by file, or using a glob pattern (e.g. *.conll10), in which case output files are created with a configurable suffix such as '.depedit' before the extension:
+
+</p>
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Usage</h3>
+  </div>
+  <div class="panel-body code-div">
+  <p class="code">> python depedit.py -c config_file.ini INPUT.conll10 > OUTPUT.conll10
+> python depedit.py -c config_file.ini *.conllu</p>
+</div>
+</div>
+
+<p>
+Configuration files are text files with one instruction per line and optional blank lines and comments (beginning with ';' or '#'). Each instruction contains 3 columns, as in the following example:
+</p>
+
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">config_file.ini</h3>
+  </div>
+  <div class="panel-body code-div">
+<table class="code">
+<tr><td colspan="3" class="comment">;Connect nouns to a preceding  article or possessive pronoun with the 'det' function</td></tr>
+<tr>
+<td width="30%">pos=/DT|PRP\$/;pos=/NNS?/</td><td>#1.#2</td><td>#2>#1;#1:func=det</td>
+</tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td colspan="3" class="comment">;Change to-infinitive from aux to mark</td></tr>
+<td width="30%">text=/^[Tt]o$/&amp;func=/aux/</td><td>none</td><td>#1:func=mark</td>
+</table>
+  </div>
+</div>
+
+<h4>Column 1: node definitions</h4>
+<p>
+The first column describes the tokens to be matched using regular expressions. 
+<ul class="content">
+<li>Constraints are given as regular expressions over the fields:
+<ul>
+	<li>num (column 1 of CoNLL format)</li>
+	<li>text (column 2)</li>
+	<li>lemma (column 3)</li>
+	<li>pos (column 4, alias upos / upostag)</li>
+	<li>cpos (column 5, alias xpos / xpostag)</li>
+	<li>morph (column 6, alias feats)</li>
+	<li>head (column 7) – this is the literal parent token’s ID number. Mostly useful when matching roots (head=/0/)</li>
+	<li>func (dependency function, column 8, alias deprel)</li>
+	<li>head2 (secondary head, for enhanced trees, alias deps)</li>
+	<li>func2 (secondary function, for enhanced trees, alias misc)</li>
+	<li>position – this is a special constraint which does not correspond to any column, but indicates the token’s position in the sentence. Possible values: first, last, and mid, matching the first token, last token, or neither first not last respectively</li>
+</ul>
+</li>
+<li>Multiple tokens are separated by ';'</li>
+<li>You can specify multiple criteria using '&amp;', as in the second rule</li>
+<li>You may specify negative criteria using !=, e.g. lemma!=/able/</li>
+<li>Constraints on sentence annotations are applied like this: #S:s_type=/decl/. Note that the operator to use with such definitions is ‘>’ (see below).</li>
+<li>You can use capturing groups in parentheses, which will be referenceable in the actions (third) column as $1, etc.</li>
+</ul>
+</p>
+
+<h4>Column 2: relation definitions</h4>
+<p>
+The middle column defines relationships between tokens. It refers to each token in the definition by number <br/> (#1, #2...) and specifies: 
+<ul class="content">
+<li>Adjacency (.): #1.#2 means the first token in column 1 is followed by the second</li> 
+<li>Distance (.n or .n,m): #1.4#2 means 4 tokens distance, and #1.1,4#2 means a distance of 1-4. You can also use the shorthand #1.*#2 (indirect precedence, which is the same as #1.1,1000#2.</li>
+<li>Parentage (&gt;): #1&gt;#2 means the first token in column 1 is the head of the second token. This operator is also used for sentence annotations (#1>#2, where #1 is a sentence annotation and #2 is a token).</li>
+<li>Column identity (field==): in addition to a distance/parentage constraint, two nodes may also specify value identity constraints. For example, #1:text==#2 means that #1 and #2 must have exactly the same text (replace ‘text’ with other fields as needed)</li>
+<li>If the instruction refers to only one token, as in the second example, the middle column says 'none'.</li>
+</ul>
+</p>
+
+<h4>Column 3: action definitions</h4>
+<p>The third column specifies what to do if a rule matches:</p>
+<ul class="content">
+	<li>Change a property of token:
+	<ul>
+		<li>text</li>
+		<li>part of speech</li>
+		<li>lemma</li>
+		<li>dependency function</li>
+		<li>morphological analysis</li>
+	</ul>
+</li>
+	<li>Make some token in the definitions the head of another: #1&gt;#2</li>
+	<li>Add a sentence annotation with the special pointer #S:<ul>
+		<li>#S:new_anno_name=somevalue</li></ul></li>
+	<li>You can refer back to values in capturing groups from the first column by using the number of that group, e.g. $1:<ul>
+		<li>text=/(.*)/&pos=/IN/ … #1:func=prep_$1</li></ul></li>
+	<li>You can also convert the contents of $1, $2 etc. to lower or upper case by using $1L (the contents of $1, in lower case), or $1U (for upper case)</li>
+	<li>You can use an equals sign (‘=’) in the actions column, so the following works as expected (only the first ‘=’ separates the key and value):<ul>
+		<li>pos=/NEG/ …  #1:morph=Polarity=Negative</li></ul></li>
+	<li>The special instruction ‘last’ makes this rule the last rule to apply to a sentence if it is matched, e.g. the following means ‘set the lemma to NONE and stop processing this sentence’:<ul>
+		<li>#1:lemma=NONE;last</li></ul></li>
+</ul>
+
+<h4>Variables</h4>
+<p>it is also possible to define variables for frequently used (parts of) regular expressions.
+</p>
+
+<ul class="content">
+	<li>Variables can be declared at the beginning of the configuration file (before rules are listed), and named using the notation:
+	<ul>
+		<li><tt>{varname}=/regex/</tt></li>
+	</ul>
+</li>
+	<li>For example, suppose you want to make a rule depend on the animacy of a head noun or pronoun, and you have a long list of nouns known to represent humans (just a few are given in this example), which you can encode using a variable named 'person':<ul>
+		<li><tt>{person}=/I|you|s?he|people|friend|child/</tt></li></ul></li>
+	<li>You can then use this variable within subsequent DepEdit rules:<ul>
+		<li>pos=/V.*/;lemma=/{person}/&func=/obj/	#1>#2	#2:misc=AnimObj</li>
+		<li>pos=/V.*/;lemma=/{person}/&func=/nsubj/	#1>#2	#2:misc=AnimSubj
+</li></ul></li>
+	<li>You can use multiple variables within the same rule, and inside the same key value, combined with normal text, e.g. lemma=/{var1}abc{var2}/.</li>
+</ul>
+
+<h2>Importing as a module</h2>
+<p>To import DepEdit into an existing project, you may want to install depedit as a module, rather than including depedit.py in your 
+own codebase. You can install from PyPI via pip:
+
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Installation</h3>
+  </div>
+  <div class="panel-body code-div">
+  <p class="code">
+  > pip install depedit
+  </p>
+</div>
+</div>
+
+
+
+In your project, use the function <tt>run_depedit</tt>, which expects two file handles for the input and configuration files, or a string representation
+of the dependency data to iterate over:</p>
+
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">some_program.py</h3>
+  </div>
+  <div class="panel-body code-div">
+<table class="code">
+<tr><td><span class="func">from</span> depedit <span class="func">import</span> DepEdit</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td>infile = <span class="func">open</span>(<span class="string">"path/to/infile.txt"</span>)</td></tr>
+<tr><td>config_file  = <span class="func">open</span>(<span class="string">"path/to/config.ini"</span>)</td></tr>
+<tr><td>d = DepEdit(config_file)</td></tr>
+<tr><td>result = d.run_depedit(infile)</td></tr>
+</table>
+  </div>
+</div>
+
+<p>
+Alternatively, you can also create a configuration inside your module, without reading it from a text file. There are several ways of doing this, which all achieve the same result:
+</p>
+
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">transformation_api_demo.py</h3>
+  </div>
+    <div class="panel-body code-div">
+<table class="code">
+
+<tr><td><span class="func">from</span> depedit <span class="func">import</span> DepEdit</td></tr>
+<tr><td>d = DepEdit()</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><span class="pycomment">##############################</span></td></tr>
+<tr><td><span class="pycomment"># Ways to add transformations:</span></td></tr>
+<tr><td><span class="pycomment">##############################</span></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><span class="pycomment"># From a single string per instruction</span></td></tr>
+<tr><td>d.add_transformation(<span class="string">"pos=/V/\tnone\t#1:func=x"</span>)</td></tr>
+<tr><td><span class="pycomment"># From args</span></td></tr>
+<tr><td>d.add_transformation(<span class="string">"pos=/V/\tnone\t#1:func=z"</span>,<span class="string">"pos=/V/\tnone\t#1:func=y"</span>)</td></tr>
+<tr><td><span class="pycomment"># From a list</span></td></tr>
+<tr><td>d.add_transformation([<span class="string">"pos=/V/\tnone\t#1:func=a"</span>,<span class="string">"pos=/V/\tnone\t#1:func=b"</span>])</td></tr>
+<tr><td><span class="pycomment"># From a dictionary</span></td></tr>
+<tr><td>d.add_transformation({<span class="string">"nodes"</span>:<span class="string">"pos=/V/"</span>,<span class="string">"rels"</span>: <span class="string">"none"</span>,<span class="string">"actions"</span>:<span class="string">"#1:pos=a"</span>})</td></tr>
+</table>
+  </div>
+</div>
+
+
+<h2>Citing</h2>
+
+<p>If you are using DepEdit in a scholarly paper, please cite the following reference:</p>
+	<div class="terminal" style="background-color: lightgray; color:black; border: 1px solid black; font-family: monospace"><pre>
+ @InProceedings{PengZeldes2020,
+   author    = {Siyao Peng and Amir Zeldes},
+   title     = {All Roads Lead to {UD}: Converting {S}tanford and {P}enn Parses 
+       to {E}nglish {U}niversal {D}ependencies with Multilayer Annotations},
+   booktitle = {Proceedings of the Joint Workshop on Linguistic Annotation, 
+       Multiword Expressions and Constructions ({LAW}-{MWE}-{C}x{G}-2018)},
+   year      = {2018},
+   pages     = {167--177},
+   address   = {Santa Fe, NM},
+   url       = {https://www.aclweb.org/anthology/W18-4918}
+ }
+</pre></div>
+
+<hr/>
+<p>&copy; 2015-2021 <a href="http://corpling.uis.georgetown.edu/amir">Amir Zeldes</a>. Code released under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 License</a>.</p>
+
+
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

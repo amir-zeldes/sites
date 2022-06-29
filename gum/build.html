@@ -1,0 +1,315 @@
+<!DOCTYPE HTML>
+<!--
+	TXT by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>GUM - The Georgetown University Multilayer Corpus</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/custom.css" />
+	</head>
+	<body class="is-preload">
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+					<div class="logo container">
+						<div>
+							<h1><a href="index.html" id="logo">GUM</a>:</h1>
+							<p> The <b>G</b>eorgetown <b>U</b>niversity <b>M</b>ultilayer Corpus</p>
+						</div>
+					</div>
+				</header>
+
+			<!-- Nav -->
+
+			<!--#include file="nav.html"-->
+
+			<!-- Main -->
+				<section id="main">
+					<div class="container">
+						<div class="row">
+							
+							<!--#include file="sidebar.html"-->
+							
+							<div class="col-9 col-12-medium imp-medium">
+								<div class="content">
+
+									<!-- Content -->
+
+										<article class="box page-content">
+
+											<header>
+												<h2>Corrections</h2>
+												<p>How to build GUM and contribute corrections</p>
+											</header>
+
+											<section>
+												
+        
+<p>
+If you notice some errors in the GUM corpus, you can contribute corrections in a number of ways. The easiest way is to <a href="https://github.com/amir-zeldes/gum/issues/new">open an issue</a> in the GUM GitHub repository and describe the error and the file you're seeing it in.</p>
+
+<p>If you would like to contribute corrections yourself (especially if you've done substantial edits rather than catching small errors you can describe), you can do so directly by forking the repository, editing <b>specific</b> files and submitting a pull request. The <b>GUM build bot script</b> will propagate changes to other relevant corpus formats and merge the changes, so it is important to read the following explanation <b>carefully</b> before editing anything.
+</p>
+
+<p>The build bot is also used to reconstruct <b><a href="https://github.com/amir-zeldes/gum/blob/master/README_reddit.md">reddit data</a></b>, merging all annotations after plain text data has been restored using <tt><b>_build/process_reddit.py</b></tt>.
+
+<h2><a name="summary">Executive Summary (TL;DR)</a></h2>
+<ul>
+<li><b>only edit files in <span class="announce_red">_build/src/</span></b></li>
+<li>edit POS, lemma and TEI tags in _build/src/xml/</li>
+<li>edit dependencies and dependency functions in _build/src/dep/</li>
+<li>edit entities, information status, entity linking and coreference in _build/src/tsv/</li>
+<li>edit RST in _build/src/rst/</li>
+<li>you can't edit constituent trees and CLAWS tags</li>
+<li>you can't edit RST dependencies</li>
+<li>do not alter tokenization or sentence borders unless you know how</li>
+</ul>
+
+<h2><a name="correcting">Where to correct what</a></h2>
+<p>
+GUM is distributed in a variety of formats which contain partially overlapping information. For example, almost all formats contain part of speech tags, which need to be in sync across formats. This synchronization is ensured by the GUM Build Script. As a result, it's important to know exactly where to correct what.
+</p>
+
+<h3>Overview</h3>
+<p>
+Of the many formats available in the GUM repo, <b>only four</b> are actually used to generate the dataset, with other formats being dynamically generated from these. 
+The four main source formats are found under the directory <tt>_build/src/</tt> in the sub-directories:
+</p>
+<ul>
+<li>xml/ - CWB vertical format XML for token annotations and <a href="http://www.tei-c.org/">TEI</a> span annotations, incl. date/time expressions</li>
+<li>dep/ - dependency syntax in the 10 column CoNLLU format</li>
+<li>tsv/ - WebAnno 3 tab separated export format for entity, information status and coreference annotations</li>
+<li>rst/ - rhetorical structure theory analyses in the rs3 format as used by <a href="https://corpling.uis.georgetown.edu/rstweb/info/">rstWeb</a></li>
+</ul>
+<p>
+Note that the corresponding formats in the full corpus release contain more annotations: for example, lemmas are not included in the CoNLLU files in src/, but will be added automatically from the XML files in the final generated CoNLLU files for each release. </p>
+
+<p>All formats other than these are generated from these files automatically and there is no possibility to edit them (changes will be quashed on the next build process). References to source directories below (e.g. xml/) always refer to these sub-directories (_build/source/xml/).
+</p>
+
+<p>Starting in GUM version 7, we include a version of constituent parses inside <tt>src/const/</tt>. Only a small subset of these files has gold standard constituent annotations, and the rest are automatically updated with each release using a state-of-the-art parser relying on gold POS tags. To re-generate const/ files, run the build-bot with the option <tt>-p</tt>.
+</p>
+
+
+<h3>Committing your corrections to Github</h3>
+<p>Because multiple people can contribute corrections simultaneously, merging corrections is managed over <a href="https://github.com/amir-zeldes/gum/tree/dev">github</a>.
+To contibute corrections directly, you should <b>always</b>:
+<ul>
+<li>Fork the <b class="announce_red">dev</b> branch</li>
+<li>Edit, commit and push to your fork</li>
+<li>Make a pull request into the origin <b class="announce_red">dev</b> branch</li>
+</ul>
+Alternatively, if you have minor individual corrections, feel free to open an <a href="https://github.com/amir-zeldes/gum/issues">issue</a> in our Github tracker and describe your change requests as accurately as possible.
+</p>
+
+<h3>Correcting token strings</h3>
+<p>
+Token strings come from the first column of the files in xml/. These should normally not be changed. Changing token strings in any other format has no effect (changes will be overwritten or lead to a conflict and crash). To correct whitespace (e.g. CoNLLU <tt>SpaceAfter</tt> annotations, plain text in CoNLLU files, etc., you can group together tokens which have no whitespace between them by adding <tt>&lt;w&gt;</tt> tags around the token lines in the .xml files in <tt>xml/</tt> (see those files for examples). Trivial contractions (e.g. "<i>don't</i>") do not need to be surrounded by tags and are interpreted as non-whitespace-separated by the build bot by default.
+</p>
+<h3>Correcting POS tags and lemmas</h3>
+<p>
+GUM contains lemmas and four types of POS tags for every token:
+</p>
+<ul>
+<li>'Vanilla' PTB tags following Santorini (1990)</li>
+<li>Extended PTB tags as used by TreeTagger (Schmid 1994)</li>
+<li>CLAWS5 tags as used in the BNC</li>
+<li>Universal POS tags as used in the Univeral Dependencies project</li>
+</ul>
+<p>
+You can correct lemmas and <b>extended PTB tags</b> in the <tt>xml/</tt> directory. <b>Vanilla PTB tags</b> are produced fully automatically from the extended tags and should not be corrected. Correct the extended tags instead. 
+<b>CLAWS tags</b> are produced by an automatic tagger, but are post-processed to remove errors based on the gold extended PTB tags. As a result, most CLAWS errors can be corrected by correcting the PTB tags. Direct corrections to CLAWS tags will be destroyed by the build script. If you find a CLAWS error despite a correct PTB tag, please let us know so we can improve post-processing.
+</p>
+
+<h3>
+Correcting TEI tags in xml/
+</h3>
+<p>
+The XML tags in the <tt>xml/</tt> directory are based on the TEI vocabulary. Although the schema for GUM is much simpler than TEI, some nesting restrictions as well as naming conventions apply.
+Corrections to XML tags can be submitted, however please make sure that the corrected file validates using the <b class="announce_red">XSD schema</b> in the _build directory. Corrections that don't validate will fail to merge. 
+If you feel the schema should be updated to accommodate some correction, please let us know.
+</p>
+
+<h3>Dependencies</h3>
+<p>
+Syntactic dependency information in the <tt>src/dep/</tt> directory can be corrected directly there. However note that:
+</p>
+<ul>
+<li>Only dependency head and function originate in these files</li>
+<li>POS tags and lemmas, as well as sentence type and speaker information come from the xml/ files</li>
+<li>You can't alter tokenization or sentence break information (see below)</li>
+</ul>
+
+<h3>const/ - Constituent trees</h3>
+<p>
+Constituent trees in <tt>src/const/</tt> are generated automatically based on the tokenization, POS tags and sentence breaks from the XML files, and cannot be corrected manually at present. Eight constituent files are also hand-annotated and are never edited by the build-bot. Note that token-less data for reddit documents is included in the release under <tt>src/const/</tt> for convenience. This data can be used to restore reddit constituent parses using <tt>_build/process_reddit.py</tt> without having to re-run the constituent parser.
+</p>
+<p>Syntactic function labels for constituents (e.g. NP-SBJ, PP-DIR, etc.) are projected automatically from the dependency syntax files; if you find a constituent function label error on a correct phrase tree, you cannot correct it manually, but please let us know so we can improve the projection algorithm.</p>
+
+<h3>tsv/ - Coreference, entities and wikification</h3>
+<p>
+Coreference and entity annotations are available in several formats, but all information is projected from the <tt>src/tsv/</tt> directory. You can correct entity types, entity linking (Wikification), information status, and even coreference and bridging edges, though care must be taken that the WebAnno TSV format has been edited correctly.
+</p>
+
+<h3>rst/ - Rhetorical Structure Theory</h3>
+<p>
+The <tt>rst/</tt> directory contains Rhetorical Structure Theory analyses in the rs3 format. You can edit the rhetorical relations and even make finer grained segments, but:
+<ul>
+<li>You cannot edit the tokenization, which is expressed by spaces inside each segment, but ultimately generated from the XML files from <tt>xml/</tt></li>
+<li>By convention, you are not allowed to make segments that contain multiple sentences according to the &lt;s&gt; elements in the XML files</li>
+</ul>
+Also note that all other RST formats (dependencies, binary and n-ary Lisp brackets) are automatically generated from the source .rs3 files and therefore cannot be edited.
+</p>
+
+<h2><a name="building">Running the build script</a></h2>
+<h3>Overview</h3>
+<p>
+The build script in <tt>_build/</tt> is run like this:
+</p>
+<p>
+<tt>&gt; python build_gum.py [-s SOURCE_DIR] [-t TARGET_DIR] [OPTIONS]</tt>
+</p>
+<p>
+Source and target directories default to <tt>_build/src/</tt> and <tt>_build/target</tt> if not supplied. Parsing and re-tagging CLAWS tags are optional if those data sources are already available and no POS tag, sentence borders or token string changes have occurred. The constituent parser is somewhat complex to re-run and slow if not run on GPU (see the README file in <tt>_build/</tt> for more details). See below for more option settings.
+</p>
+<p>
+The build script runs in three stages:
+</p>
+<ol>
+<li class="space_bottom">Validation:<br/>
+<ul>
+<li>check that all source directories have the same number of files</li>
+<li>check that document names match across directories</li>
+<li>check that token count matches across formats</li>
+<li>check that sentence borders match across formats (for xml/ and dep/; the tsv/ sentence borders are adjusted below)</li>
+<li>validate XML files using XSD schema</li>
+</ul></li>
+<li class="space_bottom">Propagation:<br/>
+<ul>
+<li>project token forms from xml/ to all formats</li>
+<li>project POS tags and lemmas from xml/ to dep/</li>
+<li>project sentence types and speaker information from xml/ to dep</li>
+<li>adjust sentence buses borders in tsv/</li>
+<li>generate vanilla PTB tags from extended tags</li>
+<li>(optional) rerun CLAWS tagging and correct based on PTB tags and dependencies (requires TreeTagger)</li>
+<li>(optional) re-run constituent parser based on updated POS tags (requires neural constituent parser)</li>
+<li>project constituent function labels from dependency trees to constituent trees</li>
+</ul></li>
+<li class="space_bottom">Convert and merge:<br/>
+<ul>
+<li>generate conll coref format</li>
+<li>update version metadata</li>
+<li>merge all data sources using SaltNPepper</li>
+<li>output merged versions of corpus in PAULA and ANNIS formats</li>
+<li>merge entity annotations into CoNLLU format</li>
+</ul></li>
+</ol>
+
+<h3>Options and sample output</h3>
+
+<p>Beyond setting different source and target directories, some flags specify optional behaviors:</p>
+<ul>
+<li><tt>-p</tt> - Re-parse the data using the neural constituent parser based on current tokens, sentence borders and POS tags (requires neural parser and correct path settings in paths.py)</li>
+<li><tt>-c</tt> - Re-tag CLAWS5 tags (requires TreeTagger configured in path settings in paths.py, and the supplied CLAWS training model in utils/treetagger/lib/)</li>
+<li><tt>-v</tt> - Verbose Pepper output - useful for debugging the merge step on errors</li>
+<li><tt>-n</tt> - No Pepper conversion</li>
+<li><tt>--pepper_only</tt> - Just run Pepper conversion after propagation has been run once</li>
+</ul>
+
+<p>A successful run including recovering reddit data, with common options on should look like this:</p>
+<div class="terminal"><span class="login">amir@GITM</span> <span class="pwd">_build</span><br/>
+> python process_reddit.py -m add<br/>
+Found complete reddit data in utils/get_reddit/cache.txt ...<br/>
+Compiling raw strings<br/>
+o Processing 18 files in c:\Uni\Corpora\GUM\github\_build\src\xml\...<br/>
+o Processing 18 files in c:\Uni\Corpora\GUM\github\_build\src\tsv\...<br/>
+o Processing 18 files in c:\Uni\Corpora\GUM\github\_build\src\dep\...<br/>
+o Processing 18 files in c:\Uni\Corpora\GUM\github\_build\src\rst\...<br/>
+o Processing 18 files in c:\Uni\Corpora\GUM\github\_build\src\..\target\const\...<br/>
+Completed fetching reddit data.<br/>
+You can now use build_gum.py to produce all annotation layers.<br/>
+<br/>
+<br/>
+<span class="login">amir@GITM</span> <span class="pwd">_build</span><br/>
+> python build_gum.py -cv<br/>
+====================<br/>
+Validating files...<br/>
+====================<br/>
+<br/>
+Found reddit source data<br/>
+Including reddit data in build<br/>
+o Found 168 documents<br/>
+o File names match<br/>
+o Token counts match across directories<br/>
+o 168 documents pass XSD validation<br/>
+<br/>
+Enriching Dependencies:<br/>
+=======================<br/>
+ 168/168:       + GUM_whow_skittles.conllu<br/>
+<br/>
+Enriching XML files:<br/>
+=======================<br/>
+o Retrieved fresh CLAWS5 tags<br/>
+o Enriched xml in 168 documents<br/>
+<br/>
+Adjusting token and sentence borders:<br/>
+=====================================<br/>
+o Adjusted 168 WebAnno TSV files<br/>
+o Adjusted 168 RST files<br/>
+<br/>
+i Skipping fresh parses for const/<br/>
+<br/>
+Compiling Universal Dependencies version:<br/>
+========================================<br/>
+o Enriched dependencies in 168 documents<br/>
+<br/>
+Adding function labels to PTB constituent trees:<br/>
+========================================<br/>
+ 168/168:       + GUM_whow_skittles.ptb<br/>
+<br/>
+Starting pepper conversion:<br/>
+==============================<br/>
+Pepper is working... |<br/>
+i Pepper reports 201 empty xml spans were ignored<br/>
+i Pepper says:<br/>
+<br/>
+Conversion ended successfully, required time: 00:02:05.602 s<br/>
+<br/>
+(In case of errors you can get verbose pepper output using the -v flag)
+</div>
+</div>
+
+											</section>
+
+
+										</article>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+			<!-- Footer -->
+				
+			<!--#include file="footer.html"-->
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE HTML>
+<!--
+	TXT by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>GUM - The Georgetown University Multilayer Corpus</title>
+		<meta charset="utf-8" />
+		<meta http-equiv="Content-Security-Policy" content="connect-src 'self' *.github.com/repos/amir-zeldes/gum/ *.georgetown.edu">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/custom.css?v=2" />
+	</head>
+	<body class="is-preload">
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/semver.min.js"></script>
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+					<div class="logo container">
+						<div>
+							<h1><a href="index.html" id="logo">GUM</a>:</h1>
+							<p> The <b>G</b>eorgetown <b>U</b>niversity <b>M</b>ultilayer Corpus</p>
+						</div>
+					</div>
+				</header>
+
+			<!-- Nav -->
+			
+			<!--#include file="nav.html"-->
+
+
+			<!-- Main -->
+				<section id="main">
+					<div class="container">
+						<div class="row">
+						
+							<!--#include file="sidebar.html"-->
+							
+							<div class="col-9 col-12-medium imp-medium">
+								<div class="content">
+
+									<!-- Content -->
+
+										<article class="box page-content">
+
+											<header>
+												<h2>Overview</h2>
+												<p>A multilayer corpus for research on discourse models</p>
+												<ul class="meta">
+													<li class="icon"><i class="fas fa-code-branch"></i> Latest stable version: <span id="release"><a href="https://github.com/amir-zeldes/gum/releases">7.0.0</a></span></li>
+													<li class="icon"><i class="fab fa-github"></i> Latest commit: <span id="commit"><a href="#">&nbsp;</a></span></li>
+													<script>
+													const branches = 'https://api.github.com/repos/amir-zeldes/gum/branches';  //dev
+													const tags_path = 'https://api.github.com/repos/amir-zeldes/gum/tags';
+
+$.get(tags_path).done(data => {
+  const versions = data.sort((v1, v2) => semver.compare(v2.name.replace(/[Vv]/,""), v1.name.replace(/[Vv]/,"")));
+  $('#release').html('<a href="https://github.com/amir-zeldes/gum/releases">' + versions[0].name+'</a>');
+});
+
+var sha = 0;
+$.getJSON(branches, function(branch_data) {
+	for (branch of branch_data){
+		if (branch["name"]=="dev"){
+			sha = branch["commit"]["sha"];
+		}
+	}
+	const commit_path = "https://api.github.com/repos/amir-zeldes/gum/commits?per_page=1&sha=" + sha;
+	$.getJSON(commit_path, function(data) {
+
+		let d = new Date(data[0]["commit"]["author"]["date"]);
+		let mon = (d.getMonth()+1).toString();
+		if (mon.length==1){mon = "0" + mon;}
+		
+		commit_date = d.getFullYear()  + "-" + (mon) + "-" + d.getDate();
+		commit_url = data[0]["html_url"];
+		commit_render = '<span><a href="'+commit_url+'">' + data[0]["commit"]["message"] + '</a> (<i class="far fa-clock"></i> ' + commit_date + ')</span>' ;
+
+		$('#commit').html(commit_render);
+	});
+});
+
+
+
+
+/*
+$.get(commit_url).done(data => {
+  const versions = data.sort((v1, v2) => semver.compare(v2.name.replace(/[Vv]/,""), v1.name.replace(/[Vv]/,"")));
+  $('#release').html(versions[0].name);
+});*/
+
+
+													</script>
+												</ul>
+											</header>
+
+											<section>
+												<span class="image featured"><img src="img/GUM_visualizers.png" alt="GUM corpus visualizations" /></span>
+												<p> GUM is an open source multilayer corpus of richly annotated texts from twelve text types. Annotations include:
+												        <ul>
+															<li>Multiple POS tags, morphological features and lemmatization</li>
+															<li>Sentence segmentation and rough speech act</li>
+															<li>Document structure in <a href="http://tei-c.org">TEI XML</a> (paragraphs, headings, figures, etc.)</li>
+															<li>Normalized ISO date/time annotations</li>
+															<li>Speaker and addressee information (where relevant)</li>
+															<li>Constituent and (enhanced) <a href="https://universaldependencies.org/">Universal Dependencies</a> syntax</li>
+															<li>Information status (given, accessible, new, split antecedent)</li>
+															<li>Entity and coreference annotation, including bridging anaphora</li>
+															<li>Entity linking (Wikification)</li>
+															<li>Discourse parses in <a href="https://www.sfu.ca/rst/">Rhetorical Structure Theory</a> and discourse dependencies</li>
+														</ul>
+												</p>
+												<p>The corpus is collected and expanded by students  as part of the curriculum in <a href="http://courses.georgetown.edu/index.cfm?CourseID=LING-367">LING-367 Computational Corpus Linguistics</a> at Georgetown University. Each year students begin by choosing a text from within one of four possible genres, and as we learn about different annotation types and standards, participants are responsible for analyzing their own document, to which they add more and more layers of analysis: from part-of-speech tagging, through treebanking, entity recognition, discourse parsing, and more. Texts are chosen from openly available sources, and students who wish to contribute their analyses at the end of semester can do so under a <a href="https://creativecommons.org/">Creative Commons</a> license. The resulting data is checked for consistency and published online via <a href="https://github.com/amir-zeldes/gum">GitHub</a>. See <a href="credits.html">this page</a> for a list of contributors.
+												</p>
+												
+												<h3>Text types and sources</h3>
+												<p>
+												Genre, modality, intended recipients, background knowledge and communicative intent all influence how we use language extensively. The selection of text types in GUM is meant to represent different communicative settings, while coming from sources that are readily and openly available, so that new texts can be annotated and published with ease, without restrictive licenses and free of charge. In order to support a collaborative environment, each year we work on texts from four genres, creating small groups of students conducting research on one type of texts, which can be compared with three others within the classroom. Every three years, we change genres and select four new types of data to work on. 
+												The GUM corpus currently contains the following proportions of texts:
+			</p>
+
+        <table id="gum_stats" class="stripes">
+            <thead><tr><th>Text type</th><th>Source</th><th></th><th>Documents</th><th>Tokens</th></tr></thead>
+            <tbody>
+            <tr><td>Interviews</td><td><a href="https://en.wikinews.org/wiki/Category:Interview">Wikinews</a></td><td><img alt="Wikinews interviews" title="Wikinews interviews" src="img/wikiinterview_logo.png" class="genre_logo"></td><td class="cn">19</td><td>18,189</td></tr>
+            <tr><td>News stories</td><td><a href="https://en.wikinews.org/wiki/">Wikinews</a></td><td><img alt="Wikinews" title="Wikinews" src="img/wikinews_logo.png" class="genre_logo"></td><td class="cn">23</td><td>16,140</td></tr>
+            <tr><td>Travel guides</td><td><a href="https://en.wikivoyage.org/">Wikivoyage</a></td><td><img alt="Wikivoyage" title="Wikivoyage" src="img/wikivoyage_logo.png" class="genre_logo"></td><td class="cn">18</td><td>16,513</td></tr>
+            <tr><td>How-to guides</td><td><a href="https://www.wikihow.com/">wikiHow</a></td><td><img alt="wikiHow" title="wikiHow" src="img/wikihow_logo.png" class="genre_logo"></td><td class="cn">19</td><td>17,085</td></tr>
+            <tr><td>Academic writing</td><td>Various</td><td><img alt="Creative Commons papers" title="Creative Commons papers" src="img/academic_logo.svg" class="genre_logo"></td><td class="cn">18</td><td>17,168</td></tr>
+            <tr><td>Biographies</td><td><a href="https://en.wikipedia.org/wiki/Portal:Biography">Wikipedia</a></td><td><img alt="Wikipedia biographies" title="Wikipedia biographies" src="img/wikipedia_logo.png" class="genre_logo"></td><td class="cn">20</td><td>18,209</td></tr>
+            <tr><td>Fiction</td><td>Various</td><td><img alt="Creative Commons fiction" title="Creative Commons fiction" src="img/fiction_logo.svg" class="genre_logo"></td><td class="cn">19</td><td>17,508</td></tr>
+            <tr><td>Forum discussions</td><td><a href="https://www.reddit.com/">reddit</a></td><td><img alt="reddit" title="reddit" src="img/reddit_logo.png" class="genre_logo"></td><td class="cn">18</td><td>16,364</td></tr>
+            <tr><td>Conversations</td><td><a href="https://www.linguistics.ucsb.edu/research/santa-barbara-corpus">UCSB Corpus</a></td><td><img alt="The Santa Barbara Corpus of Spoken American English" title="The Santa Barbara Corpus of Spoken American English" src="img/conversation_logo.png" class="genre_logo"></td><td class="cn">9</td><td>10,451</td></tr>
+            <tr><td>Political speeches</td><td>Various</td><td><img alt="Political speeches" title="Political speeches" src="img/speech_logo.svg" class="genre_logo"></td><td class="cn">10</td><td>10,827</td></tr>
+            <tr><td>CC Vlogs</td><td><a href="https://www.youtube.com/">YouTube</a></td><td><img alt="YouTube" title="YouTube" style="height: 20px; margin-top: 5px; margin-bottom: 5px;" src="img/vlog_logo.svg" class="genre_logo"></td><td class="cn">10</td><td>11,200</td></tr>
+            <tr><td>Textbooks</td><td><a href="https://openstax.org/">OpenStax</a></td><td><img alt="OpenStax Creative Commons textbooks" title="OpenStax Creative Commons textbooks" src="img/textbook_logo.png" class="genre_logo"></td><td class="cn">10</td><td>11,190</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td><td></td><td></td><td class="cn">193</td><td>180,844</td></tr></tfoot>
+        </table>
+
+												<div class="col-12">
+													<ul class="actions">
+														<li><a href="demo.html" class="button large">Demo</a></li>
+														<li><a href="download.html" class="button alt large">Download</a></li>
+														<li><a href="papers.html" class="button alt large">Cite</a></li>
+													</ul>
+												</div>
+
+
+											</section>
+
+
+										</article>
+
+								</div>
+							</div>
+						
+						</div>
+					</div>
+				</section>
+
+			<!-- Footer -->
+			
+			<!--#include file="footer.html"-->
+				
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

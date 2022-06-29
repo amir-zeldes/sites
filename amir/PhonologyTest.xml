@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<wordlist>
+
+<r root="">
+	<w lang="GermanPhonology" form=""></w>
+	<w lang="PolishPhonology" form=""></w>
+</r>
+
+<r root="">
+	<w form="Brot" res="Brot" lang="GermanPhonology"></w>
+</r>
+
+<r root="">
+	<w form="Streichquartetten" res="Streichquartetten" lang="GermanPhonology"></w>
+</r>
+
+<r root="">
+	<w form="Irrgarten" res="Irrgarten" lang="GermanPhonology"></w>
+</r>
+
+<r root="">
+	<w form="Endstation" res="Endstation" lang="GermanPhonology"></w>
+</r>
+
+<r root="">
+	<w form="verbessere" res="verbessere" lang="GermanPhonology"></w>
+</r>
+
+<r root="">
+	<w form="empfinden" res="empfinden" lang="GermanPhonology"></w>
+</r>
+
+<r root="">
+	<w form="bitte" res="bitte" lang="GermanPhonology"></w>
+</r>
+
+<r root="">
+	<w form="früh" res="früh" lang="GermanPhonology"></w>
+</r>
+
+<r root="">
+	<w form="Geburts-tag" res="Geburts–tag" lang="GermanPhonology"></w>
+</r>
+
+
+<!--POLISH-->
+<!--counter examples: nieo-dmienny; foreign diphthongs: au-to-bus vs. na-u-ka -->
+
+<r root="">
+	<w form="byliśmy" res="byliśmy" lang="PolishPhonology"></w>
+</r>
+
+<r root="">
+	<w form="mógł" res="mógł" lang="PolishPhonology"></w>
+</r>
+
+<r root="">
+	<w form="pogłębiarka" res="pogłębiarka" lang="PolishPhonology"></w>
+</r>
+
+<r root="">
+	<w form="sprzątają" res="sprzątają" lang="PolishPhonology"></w>
+</r>
+
+<r root="">
+	<w form="cieńszy" res="cieńszy" lang="PolishPhonology"></w>
+</r>
+
+<r root="">
+	<w form="chorągiewka" res="chorągiewka" lang="PolishPhonology"></w>
+</r>
+
+<r root="">
+	<w form="krwi" res="krwi" lang="PolishPhonology"></w>
+</r>
+
+
+<r root="">
+	<w form="znaleźliście" res="znaleźliście" lang="PolishPhonology"></w>
+</r>
+
+</wordlist>
