@@ -54,7 +54,7 @@ var WIKIPEDIA = function() {
       var title = parts[parts.length-1];
       url = 'http://dbpedia.org/resource/' + title;
       return url;
-    } else if (url.indexOf('dbpedia.org')!=-1) {
+    } else if (url.indexOf('http://dbpedia.org')!=-1 || url.indexOf('https://dbpedia.org')!=-1) {  // These are urls, can add https? before for safety-AZ
       return url;
     } else {
       url = 'http://dbpedia.org/resource/' + url.replace(/ /g, '_');
@@ -185,11 +185,12 @@ var WIKIPEDIA = function() {
       var value = typeObjs[idx].value;
       // let's be selective
       // ignore yago and owl stuff
-      if (value.indexOf('dbpedia.org/ontology') != -1 || value.indexOf('schema.org') != -1 || value.indexOf('foaf/0.1') != -1) {
+	  // These are just substrings so we can remove the URI suffixes-AZ
+      if (value.indexOf('dbpedia') != -1 || value.indexOf('schema') != -1 || value.indexOf('foaf/0.1') != -1) {
         // TODO: ensure uniqueness (do not push same thing ...)
         summaryInfo.types.push(gl(value));
         // use schema.org value as the default
-        if (value.indexOf('schema.org') != -1) {
+        if (value.indexOf('schema') != -1) {
           summaryInfo.type = gl(value);
         }
       }
