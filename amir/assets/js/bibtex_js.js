@@ -587,8 +587,8 @@ function BibtexDisplay() {
             // Get all the unique values for the sections
             var sectionbibtexkey = sectionsChild.first().attr('class').split(" ")[1].toUpperCase();
             $('.section', '.sections').each(function(i, object) {
-                values.push($(this).attr('class').split(" ")[1].toUpperCase());
-                titles.push($(this).attr('title'));
+                values.push($(this).attr('class').replace(/[<>]/g,"").split(" ")[1].toUpperCase());
+                titles.push($(this).attr('title').replace(/[<>]/g,""));
             });
 
             //Get the bibtex topics html here.
