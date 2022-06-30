@@ -4,7 +4,7 @@ var selection = {};
 var max_depth = 10;
 
 function wordify(str){
-	return str.replace(/\s/g,"_").replace("(","%28").replace(")","%29");
+	return str.replace(/\s/g,"_").replace(/\(/g,"%28").replace(/\)/g,"%29");
 }
 
 function get_span_id(span_object){
